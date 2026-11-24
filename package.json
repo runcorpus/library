@@ -1,0 +1,15 @@
+{
+  "name": "@runcorpus/library",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "bun run --workspaces check",
+    "test": "bun run --workspaces test"
+  },
+  "workspaces": [
+    "*/*"
+  ],
+  "engines": {
+    "bun": ">=1.4.5"
+  }
+}
