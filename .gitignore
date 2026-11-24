@@ -1,0 +1,4 @@
+node_modules/
+.corpus/
+.DS_Store
+.env*.local
