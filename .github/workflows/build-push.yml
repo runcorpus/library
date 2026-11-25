@@ -48,6 +48,9 @@ jobs:
 
       - uses: runcorpus/setup-corpus@56f06e855000c6927fa6c05314bb938788762d34 # v0
 
+      - name: Login
+        run: corpus login --github-oidc
+
       - name: Build
         run: bun run build
 
