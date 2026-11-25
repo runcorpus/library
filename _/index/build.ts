@@ -2,6 +2,8 @@ import { SocketClient } from "@corpusd/api";
 import * as corpus from "@corpusd/api/corpus";
 import { loadCatalog } from "./registry";
 
+const tag = "_/index:latest";
+
 const labels = {
   name: "Corpus Index",
   description: "Find a published corpus by name or topic so you can add it and search it locally.",
@@ -19,4 +21,4 @@ try {
   sealed = await corpus.close(client, writer);
 }
 
-console.log(JSON.stringify(sealed));
+await corpus.tag(client, sealed.corpus, tag);

@@ -1,0 +1,55 @@
+name: Publish Corpus
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      directory:
+        description: Corpus directory
+        type: string
+        required: true
+        default: _/index
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish ${{ matrix.directory }}
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJSON(inputs.directory && format('[{0}]', toJSON(inputs.directory)) || '["_/index"]') }}
+    concurrency:
+      group: publish-${{ matrix.directory }}
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.5
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Check
+        run: bun run check
+
+      - uses: runcorpus/setup-corpus@56f06e855000c6927fa6c05314bb938788762d34 # v0
+
+      - name: Build
+        run: bun run build
+
+      - name: Push
+        run: bun run push

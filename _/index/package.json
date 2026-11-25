@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun corpus.ts",
+    "build": "bun build.ts",
+    "push": "corpus push _/index:latest",
     "check": "bun check --no-script",
     "test": "bun test"
   },

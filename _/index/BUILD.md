@@ -42,4 +42,6 @@ snapshot manifest, and README in parallel.
 
 Read each response fully and map it to the document shape above. Collect all
 documents in memory before ingestion, then send them in batches to the local
-Corpus daemon. Close the writer to save the resulting Corpus Index snapshot.
+Corpus daemon. Close the writer to save the resulting Corpus Index snapshot,
+then tag it as `_/index:latest`. The workflow publishes it with the package's
+push script.
