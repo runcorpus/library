@@ -1,8 +1,9 @@
 # News
 
 News (`_/news`) is a rolling English-language news corpus built from public RSS
-and Atom feeds across general news, business, technology, sports, and
-entertainment outlets.
+and Atom feeds across general and local news, business, technology, science,
+health, sports, gaming, entertainment, travel, automotive, education, and
+lifestyle outlets.
 
 ## What you can do
 

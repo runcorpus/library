@@ -2,7 +2,21 @@ import { resolve } from "node:path";
 import { parseFeed, type AtomFeed, type RssFeed } from "feedsmith";
 import type { IngestDocument } from "@corpusd/api";
 
-export const FEED_CATEGORIES = ["general", "business", "tech", "sports", "entertainment"] as const;
+export const FEED_CATEGORIES = [
+  "general",
+  "local",
+  "business",
+  "tech",
+  "science",
+  "health",
+  "sports",
+  "gaming",
+  "entertainment",
+  "travel",
+  "automotive",
+  "education",
+  "lifestyle",
+] as const;
 
 export type FeedCategory = (typeof FEED_CATEGORIES)[number];
 

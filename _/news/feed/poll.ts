@@ -237,6 +237,8 @@ function nextBackoffIso(failures: number, retryAfterSeconds: number | null, now:
   return new Date(now.getTime() + waitSeconds * 1000).toISOString();
 }
 
+const POLL_CONCURRENCY = 16;
+
 export async function pollIntoStore(
   storeDir = resolveStoreDir(),
   feeds?: FeedSource[],
@@ -254,51 +256,56 @@ export async function pollIntoStore(
     unchanged: 0,
   };
 
+  let nextIndex = 0;
+  const workerCount = Math.min(POLL_CONCURRENCY, sources.length);
   await Promise.all(
-    sources.map(async (source) => {
-      const prior = await readFeedState(storeDir, source.id);
-      if (prior?.backoffUntil && Date.parse(prior.backoffUntil) > now.getTime()) {
-        summary.skippedBackoff++;
-        return;
-      }
-      const pollIso = now.toISOString();
-      try {
-        const result = await fetchFeed(source, {
-          etag: prior?.etag,
-          lastModified: prior?.lastModified,
-          now,
-        });
-        await writeFeedState(storeDir, source.id, {
-          etag: result.etag,
-          lastModified: result.lastModified,
-          lastPollAt: pollIso,
-          lastOkAt: pollIso,
-          consecutiveFailures: 0,
-          backoffUntil: null,
-          lastError: null,
-        });
-        if (result.status === "not_modified") {
-          summary.notModified++;
-          return;
+    Array.from({ length: workerCount }, async () => {
+      while (nextIndex < sources.length) {
+        const source = sources[nextIndex++]!;
+        const prior = await readFeedState(storeDir, source.id);
+        if (prior?.backoffUntil && Date.parse(prior.backoffUntil) > now.getTime()) {
+          summary.skippedBackoff++;
+          continue;
         }
-        summary.fetched++;
-        const counts = await upsertFeedItems(storeDir, source.id, result.items);
-        summary.added += counts.added;
-        summary.updated += counts.updated;
-        summary.unchanged += counts.unchanged;
-      } catch (error) {
-        summary.failed++;
-        const failures = (prior?.consecutiveFailures ?? 0) + 1;
-        const retryAfter = error instanceof FeedHttpError ? error.retryAfterSeconds : null;
-        await writeFeedState(storeDir, source.id, {
-          etag: prior?.etag ?? null,
-          lastModified: prior?.lastModified ?? null,
-          lastPollAt: pollIso,
-          lastOkAt: prior?.lastOkAt ?? null,
-          consecutiveFailures: failures,
-          backoffUntil: nextBackoffIso(failures, retryAfter, now),
-          lastError: error instanceof Error ? error.message : String(error),
-        });
+        const pollIso = now.toISOString();
+        try {
+          const result = await fetchFeed(source, {
+            etag: prior?.etag,
+            lastModified: prior?.lastModified,
+            now,
+          });
+          await writeFeedState(storeDir, source.id, {
+            etag: result.etag,
+            lastModified: result.lastModified,
+            lastPollAt: pollIso,
+            lastOkAt: pollIso,
+            consecutiveFailures: 0,
+            backoffUntil: null,
+            lastError: null,
+          });
+          if (result.status === "not_modified") {
+            summary.notModified++;
+            continue;
+          }
+          summary.fetched++;
+          const counts = await upsertFeedItems(storeDir, source.id, result.items);
+          summary.added += counts.added;
+          summary.updated += counts.updated;
+          summary.unchanged += counts.unchanged;
+        } catch (error) {
+          summary.failed++;
+          const failures = (prior?.consecutiveFailures ?? 0) + 1;
+          const retryAfter = error instanceof FeedHttpError ? error.retryAfterSeconds : null;
+          await writeFeedState(storeDir, source.id, {
+            etag: prior?.etag ?? null,
+            lastModified: prior?.lastModified ?? null,
+            lastPollAt: pollIso,
+            lastOkAt: prior?.lastOkAt ?? null,
+            consecutiveFailures: failures,
+            backoffUntil: nextBackoffIso(failures, retryAfter, now),
+            lastError: error instanceof Error ? error.message : String(error),
+          });
+        }
       }
     }),
   );

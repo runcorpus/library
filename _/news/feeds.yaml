@@ -69,6 +69,107 @@
   category: general
   url: https://rss.dw.com/xml/rss-en-all
 
+- id: npr-politics
+  name: NPR Politics
+  category: general
+  url: https://feeds.npr.org/1014/rss.xml
+
+# Local
+- id: la-times-california
+  name: Los Angeles Times California
+  category: local
+  url: https://www.latimes.com/california/rss2.0.xml
+
+- id: nyt-nyregion
+  name: The New York Times New York
+  category: local
+  url: https://rss.nytimes.com/services/xml/rss/nyt/NYRegion.xml
+
+- id: nypost-metro
+  name: New York Post Metro
+  category: local
+  url: https://nypost.com/metro/feed/
+
+- id: miami-new-times
+  name: Miami New Times
+  category: local
+  url: https://www.miaminewtimes.com/feed
+
+- id: 12news-phoenix
+  name: 12News Phoenix
+  category: local
+  url: https://www.12news.com/feeds/syndication/rss/news/local
+
+- id: phoenix-new-times
+  name: Phoenix New Times
+  category: local
+  url: https://www.phoenixnewtimes.com/feed
+
+- id: kxan
+  name: KXAN Austin
+  category: local
+  url: https://www.kxan.com/feed/
+
+- id: texas-standard
+  name: Texas Standard
+  category: local
+  url: https://www.texasstandard.org/feed/
+
+- id: dallas-observer
+  name: Dallas Observer
+  category: local
+  url: https://www.dallasobserver.com/feed
+
+- id: cpr
+  name: Colorado Public Radio
+  category: local
+  url: https://www.cpr.org/feed/
+
+- id: denverite
+  name: Denverite
+  category: local
+  url: https://denverite.com/feed/
+
+- id: westword
+  name: Westword
+  category: local
+  url: https://www.westword.com/feed
+
+- id: wttw-chicago
+  name: WTTW News
+  category: local
+  url: https://news.wttw.com/feed
+
+- id: sfist
+  name: SFist
+  category: local
+  url: https://sfist.com/feed/
+
+- id: voice-of-san-diego
+  name: Voice of San Diego
+  category: local
+  url: https://voiceofsandiego.org/feed/
+
+- id: boston-magazine
+  name: Boston Magazine
+  category: local
+  url: https://www.bostonmagazine.com/feed/
+
+- id: new-boston-post
+  name: NewBostonPost
+  category: local
+  url: https://newbostonpost.com/feed/
+
+- id: universal-hub
+  name: Universal Hub
+  category: local
+  url: https://www.universalhub.com/rss.xml
+
+- id: washington-city-paper
+  name: Washington City Paper
+  category: local
+  url: https://www.washingtoncitypaper.com/feed/
+
 # Business
 - id: cnbc
   name: CNBC
@@ -114,6 +215,26 @@
   name: The Wall Street Journal
   category: business
   url: https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness
+
+- id: thestreet
+  name: TheStreet
+  category: business
+  url: https://www.thestreet.com/.rss/full/
+
+- id: investing
+  name: Investing.com
+  category: business
+  url: https://www.investing.com/rss/news.rss
+
+- id: seeking-alpha
+  name: Seeking Alpha
+  category: business
+  url: https://seekingalpha.com/feed.xml
+
+- id: inc
+  name: Inc.
+  category: business
+  url: https://www.inc.com/rss/
 
 # Tech
 - id: techcrunch
@@ -161,6 +282,153 @@
   category: tech
   url: https://9to5mac.com/feed/
 
+- id: wired
+  name: WIRED
+  category: tech
+  url: https://www.wired.com/feed/rss
+
+- id: android-authority
+  name: Android Authority
+  category: tech
+  url: https://www.androidauthority.com/feed
+
+- id: macrumors
+  name: MacRumors
+  category: tech
+  url: https://feeds.macrumors.com/MacRumors-All
+
+- id: appleinsider
+  name: AppleInsider
+  category: tech
+  url: https://appleinsider.com/rss/news/
+
+- id: toms-hardware
+  name: Tom's Hardware
+  category: tech
+  url: https://www.tomshardware.com/feeds/all
+
+- id: cnet
+  name: CNET
+  category: tech
+  url: https://www.cnet.com/rss/news/
+
+- id: mashable
+  name: Mashable
+  category: tech
+  url: https://mashable.com/feeds/rss/all
+
+- id: how-to-geek
+  name: How-To Geek
+  category: tech
+  url: https://www.howtogeek.com/feed/
+
+- id: makeuseof
+  name: MakeUseOf
+  category: tech
+  url: https://www.makeuseof.com/feed/
+
+- id: petapixel
+  name: PetaPixel
+  category: tech
+  url: https://petapixel.com/feed/
+
+- id: product-hunt
+  name: Product Hunt
+  category: tech
+  url: https://www.producthunt.com/feed
+
+- id: hn-frontpage
+  name: Hacker News
+  category: tech
+  url: https://hnrss.org/frontpage
+
+- id: hn-best
+  name: Hacker News Best
+  category: tech
+  url: https://hnrss.org/best
+
+- id: hn-show
+  name: Show HN
+  category: tech
+  url: https://hnrss.org/show
+
+- id: lobsters
+  name: Lobsters
+  category: tech
+  url: https://lobste.rs/rss
+
+- id: devto
+  name: DEV Community
+  category: tech
+  url: https://dev.to/feed
+
+# Science
+- id: phys-org
+  name: Phys.org
+  category: science
+  url: https://phys.org/rss-feed/
+
+- id: scitechdaily
+  name: SciTechDaily
+  category: science
+  url: https://scitechdaily.com/feed/
+
+- id: nyt-science
+  name: The New York Times Science
+  category: science
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Science.xml
+
+- id: space
+  name: Space.com
+  category: science
+  url: https://www.space.com/feeds/all
+
+- id: live-science
+  name: Live Science
+  category: science
+  url: https://www.livescience.com/feeds/all
+
+- id: nasa
+  name: NASA
+  category: science
+  url: https://www.nasa.gov/news-release/feed/
+
+- id: arxiv-cs-ir
+  name: arXiv cs.IR
+  category: science
+  url: https://export.arxiv.org/rss/cs.IR
+
+- id: arxiv-cs-cl
+  name: arXiv cs.CL
+  category: science
+  url: https://export.arxiv.org/rss/cs.CL
+
+- id: arxiv-cs-lg
+  name: arXiv cs.LG
+  category: science
+  url: https://export.arxiv.org/rss/cs.LG
+
+# Health
+- id: stat
+  name: STAT
+  category: health
+  url: https://www.statnews.com/feed/
+
+- id: npr-health
+  name: NPR Health
+  category: health
+  url: https://feeds.npr.org/1128/rss.xml
+
+- id: medpage-today
+  name: MedPage Today
+  category: health
+  url: https://www.medpagetoday.com/rss/headlines.xml
+
+- id: kff-health-news
+  name: KFF Health News
+  category: health
+  url: https://kffhealthnews.org/feed/
+
 # Sports
 - id: yahoo-sports
   name: Yahoo Sports
@@ -191,6 +459,77 @@
   name: The Guardian Sport
   category: sports
   url: https://www.theguardian.com/uk/sport/rss
+
+- id: nbc-sports-pft
+  name: NBC Sports ProFootballTalk
+  category: sports
+  url: https://profootballtalk.nbcsports.com/feed/
+
+- id: espn-nfl
+  name: ESPN NFL
+  category: sports
+  url: https://www.espn.com/espn/rss/nfl/news
+
+- id: espn-nba
+  name: ESPN NBA
+  category: sports
+  url: https://www.espn.com/espn/rss/nba/news
+
+- id: espn-mlb
+  name: ESPN MLB
+  category: sports
+  url: https://www.espn.com/espn/rss/mlb/news
+
+- id: cbs-sports-nba
+  name: CBS Sports NBA
+  category: sports
+  url: https://www.cbssports.com/rss/headlines/nba/
+
+- id: cbs-sports-nfl
+  name: CBS Sports NFL
+  category: sports
+  url: https://www.cbssports.com/rss/headlines/nfl/
+
+- id: defector
+  name: Defector
+  category: sports
+  url: https://defector.com/feed
+
+- id: sb-nation
+  name: SB Nation
+  category: sports
+  url: https://www.sbnation.com/rss/index.xml
+
+# Gaming
+- id: ign
+  name: IGN
+  category: gaming
+  url: https://feeds.ign.com/ign/games-all
+
+- id: eurogamer
+  name: Eurogamer
+  category: gaming
+  url: https://www.eurogamer.net/feed
+
+- id: rock-paper-shotgun
+  name: Rock Paper Shotgun
+  category: gaming
+  url: https://www.rockpapershotgun.com/feed/news
+
+- id: polygon
+  name: Polygon
+  category: gaming
+  url: https://www.polygon.com/rss/index.xml
+
+- id: pc-gamer
+  name: PC Gamer
+  category: gaming
+  url: https://www.pcgamer.com/rss/
+
+- id: gamespot
+  name: GameSpot
+  category: gaming
+  url: https://www.gamespot.com/feeds/mashup/
 
 # Entertainment
 - id: variety
@@ -227,3 +566,97 @@
   name: Pitchfork
   category: entertainment
   url: https://pitchfork.com/feed/feed-news/rss
+
+- id: thewrap
+  name: TheWrap
+  category: entertainment
+  url: https://www.thewrap.com/feed/
+
+- id: screen-rant
+  name: Screen Rant
+  category: entertainment
+  url: https://screenrant.com/feed/
+
+- id: comingsoon
+  name: ComingSoon.net
+  category: entertainment
+  url: https://www.comingsoon.net/feed
+
+- id: collider
+  name: Collider
+  category: entertainment
+  url: https://collider.com/feed/
+
+- id: decider
+  name: Decider
+  category: entertainment
+  url: https://decider.com/feed/
+
+- id: tvline
+  name: TVLine
+  category: entertainment
+  url: https://tvline.com/feed/
+
+# Travel
+- id: view-from-the-wing
+  name: View from the Wing
+  category: travel
+  url: https://viewfromthewing.com/feed/
+
+- id: one-mile-at-a-time
+  name: One Mile at a Time
+  category: travel
+  url: https://onemileatatime.com/feed/
+
+- id: skift
+  name: Skift
+  category: travel
+  url: https://skift.com/feed/
+
+- id: conde-nast-traveler
+  name: Condé Nast Traveler
+  category: travel
+  url: https://www.cntraveler.com/feed/rss
+
+# Automotive
+- id: electrek
+  name: Electrek
+  category: automotive
+  url: https://electrek.co/feed/
+
+- id: car-and-driver
+  name: Car and Driver
+  category: automotive
+  url: https://www.caranddriver.com/rss/all.xml
+
+- id: jalopnik
+  name: Jalopnik
+  category: automotive
+  url: https://jalopnik.com/rss
+
+# Education
+- id: the-74
+  name: The 74
+  category: education
+  url: https://www.the74million.org/feed/
+
+- id: inside-higher-ed
+  name: Inside Higher Ed
+  category: education
+  url: https://www.insidehighered.com/rss.xml
+
+- id: k12-dive
+  name: K-12 Dive
+  category: education
+  url: https://www.k12dive.com/feeds/news/
+
+# Lifestyle
+- id: gear-patrol
+  name: Gear Patrol
+  category: lifestyle
+  url: https://www.gearpatrol.com/feed/
+
+- id: the-kitchn
+  name: The Kitchn
+  category: lifestyle
+  url: https://www.thekitchn.com/main.rss

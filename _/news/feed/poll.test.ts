@@ -51,7 +51,7 @@ describe("feeds mapping", () => {
       parseFeedsYaml(`
 - id: a
   name: Feed A
-  category: science
+  category: unknown
   url: https://example.com/a.xml
 `),
     ).toThrow("invalid category");
