@@ -2,7 +2,7 @@ name: Publish News
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '34 * * * *'
   workflow_dispatch:
 
 permissions:
