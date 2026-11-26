@@ -3,7 +3,15 @@ import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ALLOWED_LABEL_KEYS, WINDOW_TAGS, partitionWindowItems, windowLabels } from "../build";
-import { canonicalizeUrl, loadFeeds, parseFeedsYaml, toDocument, type FeedItem } from "./index";
+import {
+  canonicalizeUrl,
+  extractGoogleTrendsItems,
+  isGoogleTrendsFeed,
+  loadFeeds,
+  parseFeedsYaml,
+  toDocument,
+  type FeedItem,
+} from "./index";
 import { pruneOldDays, readFeedState, readWindow, upsertFeedItems, writeFeedState } from "./poll";
 
 function makeItem(overrides: Partial<FeedItem> = {}): FeedItem {
@@ -143,6 +151,81 @@ describe("feeds mapping", () => {
       "https://example.com/in-7d",
       "https://example.com/in-30d",
     ]);
+  });
+
+  test("extractGoogleTrendsItems extracts publisher articles and merges duplicate URLs", () => {
+    const trendsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:ht="https://trends.google.com/trending/rss" version="2.0">
+  <channel>
+    <title>Daily Search Trends</title>
+    <item>
+      <title>topic alpha &amp; beta</title>
+      <link>https://trends.google.com/trending/rss?geo=US</link>
+      <pubDate>Thu, 26 Nov 2026 09:40:00 -0800</pubDate>
+      <ht:news_item>
+        <ht:news_item_title>Team&apos;s Star Out &amp; Injured</ht:news_item_title>
+        <ht:news_item_snippet/>
+        <ht:news_item_url>https://www.espn.com/story?id=1&amp;utm_source=trends</ht:news_item_url>
+        <ht:news_item_source>ESPN</ht:news_item_source>
+      </ht:news_item>
+      <ht:news_item>
+        <ht:news_item_title>Second Angle</ht:news_item_title>
+        <ht:news_item_snippet>Lead summary here.</ht:news_item_snippet>
+        <ht:news_item_url>https://www.cbssports.com/story-2</ht:news_item_url>
+        <ht:news_item_source>CBS Sports</ht:news_item_source>
+      </ht:news_item>
+    </item>
+    <item>
+      <title>topic gamma</title>
+      <link>https://trends.google.com/trending/rss?geo=US</link>
+      <pubDate>Thu, 26 Nov 2026 10:00:00 -0800</pubDate>
+      <ht:news_item>
+        <ht:news_item_title>Team&apos;s Star Out</ht:news_item_title>
+        <ht:news_item_snippet>Filled snippet.</ht:news_item_snippet>
+        <ht:news_item_url>https://www.espn.com/story?id=1</ht:news_item_url>
+        <ht:news_item_source>ESPN</ht:news_item_source>
+      </ht:news_item>
+    </item>
+  </channel>
+</rss>`;
+
+    expect(isGoogleTrendsFeed(trendsXml)).toBe(true);
+    expect(isGoogleTrendsFeed("<rss version=\"2.0\"><channel></channel></rss>")).toBe(false);
+
+    const items = extractGoogleTrendsItems(
+      {
+        id: "google-trends-us",
+        name: "Google Trends US",
+        category: "general",
+        url: "https://trends.google.com/trending/rss?geo=US",
+      },
+      trendsXml,
+      "2026-11-26T18:00:00.000Z",
+    );
+
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({
+      url: "https://www.espn.com/story?id=1",
+      title: "Team's Star Out & Injured",
+      summary: "Filled snippet.",
+      publisher: "ESPN",
+      tags: ["topic alpha & beta", "topic gamma"],
+      publishedAt: "2026-11-26T17:40:00.000Z",
+    });
+
+    const doc = toDocument(items[0]!);
+    expect(Object.keys(doc.meta).sort()).toEqual([
+      "category",
+      "date",
+      "description",
+      "first_seen_at",
+      "publisher",
+      "source",
+      "title",
+    ]);
+    expect(doc.body?.data).toContain("Filled snippet.");
+    expect(doc.body?.data).toContain("topic alpha & beta, topic gamma");
+    expect(doc.body?.data).toContain("Google Trends US, ESPN");
   });
 });
 

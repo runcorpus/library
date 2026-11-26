@@ -304,6 +304,89 @@ function extractAtomItems(source: FeedSource, feed: AtomFeed.Feed<string>, seenA
   return out;
 }
 
+const GOOGLE_TRENDS_NS = "https://trends.google.com/trending/rss";
+
+function unwrapXmlText(raw: string | undefined): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  const cdata = trimmed.match(/^<!\[CDATA\[([\s\S]*)\]\]>$/);
+  if (cdata) return cdata[1]!.trim();
+  return trimmed
+    .replace(
+      /&(?:(amp|lt|gt|quot|apos)|#(\d+)|#x([0-9a-f]+));/gi,
+      (match, named?: string, dec?: string, hex?: string) => {
+        if (named) return NAMED_ENTITIES[named.toLowerCase()] ?? match;
+        if (dec) return String.fromCodePoint(Number(dec));
+        if (hex) return String.fromCodePoint(Number.parseInt(hex, 16));
+        return match;
+      },
+    )
+    .trim();
+}
+
+function readXmlTag(block: string, tagName: string): string | undefined {
+  const match = block.match(new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tagName}>`));
+  return match?.[1];
+}
+
+export function isGoogleTrendsFeed(xml: string): boolean {
+  return (
+    xml.includes(`xmlns:ht="${GOOGLE_TRENDS_NS}"`) ||
+    xml.includes(`xmlns:ht='${GOOGLE_TRENDS_NS}'`)
+  );
+}
+
+/**
+ * Extract underlying publisher articles from Google Trends RSS `<ht:news_item>` entries.
+ */
+export function extractGoogleTrendsItems(source: FeedSource, xml: string, seenAt: string): FeedItem[] {
+  const byUrl = new Map<string, FeedItem>();
+  for (const itemMatch of xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/g)) {
+    const itemXml = itemMatch[1]!;
+    const topic = stripHtml(unwrapXmlText(readXmlTag(itemXml, "title")));
+    const publishedAt = toRfc3339(unwrapXmlText(readXmlTag(itemXml, "pubDate")));
+
+    for (const newsMatch of itemXml.matchAll(/<ht:news_item(?:\s[^>]*)?>([\s\S]*?)<\/ht:news_item>/g)) {
+      const newsXml = newsMatch[1]!;
+      const rawUrl = unwrapXmlText(readXmlTag(newsXml, "ht:news_item_url"));
+      const url = rawUrl ? canonicalizeUrl(rawUrl) : null;
+      const title = stripHtml(unwrapXmlText(readXmlTag(newsXml, "ht:news_item_title")));
+      if (!url || !title) continue;
+
+      const summary = stripHtml(unwrapXmlText(readXmlTag(newsXml, "ht:news_item_snippet")));
+      const rawPublisher = stripHtml(unwrapXmlText(readXmlTag(newsXml, "ht:news_item_source")));
+      const publisher =
+        rawPublisher && rawPublisher.toLowerCase() !== source.name.toLowerCase() ? rawPublisher : null;
+
+      const existing = byUrl.get(url);
+      if (existing) {
+        existing.tags = uniqueStrings([...existing.tags, topic]);
+        if (!existing.summary && summary) existing.summary = summary;
+        continue;
+      }
+
+      byUrl.set(url, {
+        url,
+        guid: url,
+        feedId: source.id,
+        source: source.name,
+        publisher,
+        category: source.category,
+        title,
+        summary,
+        content: "",
+        caption: "",
+        authors: [],
+        tags: uniqueStrings([topic]),
+        publishedAt,
+        updatedAt: null,
+        firstSeenAt: seenAt,
+      });
+    }
+  }
+  return [...byUrl.values()];
+}
+
 export const MAX_DESCRIPTION_CHARS = 200;
 
 /**
@@ -406,7 +489,9 @@ export async function fetchFeed(source: FeedSource, options: FetchFeedOptions = 
   const parsed = parseFeed(xml);
   let items: FeedItem[];
   if (parsed.format === "rss") {
-    items = extractRssItems(source, parsed.feed, seenAt);
+    items = isGoogleTrendsFeed(xml)
+      ? extractGoogleTrendsItems(source, xml, seenAt)
+      : extractRssItems(source, parsed.feed, seenAt);
   } else if (parsed.format === "atom") {
     items = extractAtomItems(source, parsed.feed, seenAt);
   } else {

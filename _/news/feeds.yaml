@@ -74,6 +74,31 @@
   category: general
   url: https://feeds.npr.org/1014/rss.xml
 
+- id: google-trends-us
+  name: Google Trends US
+  category: general
+  url: https://trends.google.com/trending/rss?geo=US
+
+- id: google-trends-gb
+  name: Google Trends UK
+  category: general
+  url: https://trends.google.com/trending/rss?geo=GB
+
+- id: google-trends-ca
+  name: Google Trends Canada
+  category: general
+  url: https://trends.google.com/trending/rss?geo=CA
+
+- id: google-trends-au
+  name: Google Trends Australia
+  category: general
+  url: https://trends.google.com/trending/rss?geo=AU
+
+- id: google-trends-sg
+  name: Google Trends Singapore
+  category: general
+  url: https://trends.google.com/trending/rss?geo=SG
+
 # Local
 - id: la-times-california
   name: Los Angeles Times California
