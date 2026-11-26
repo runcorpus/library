@@ -1,9 +1,9 @@
 {
   "etag": null,
   "lastModified": null,
-  "lastPollAt": "2026-11-26T09:59:33.131Z",
+  "lastPollAt": "2026-11-26T12:34:27.261Z",
   "lastOkAt": null,
-  "consecutiveFailures": 2,
-  "backoffUntil": "2026-11-26T10:29:33.131Z",
+  "consecutiveFailures": 3,
+  "backoffUntil": "2026-11-26T13:34:27.261Z",
   "lastError": "Unrecognized feed format"
 }
