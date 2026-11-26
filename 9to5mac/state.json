@@ -1,8 +1,8 @@
 {
-  "etag": "W/\"72d5048a0a42ddc475438aed3ab86686\"",
-  "lastModified": "Thu, 26 Nov 2026 16:29:42 GMT",
-  "lastPollAt": "2026-11-26T17:48:54.782Z",
-  "lastOkAt": "2026-11-26T17:48:54.782Z",
+  "etag": "W/\"586145fd9ff2c84d3b2ba43eefa4b6c1\"",
+  "lastModified": "Thu, 26 Nov 2026 18:06:22 GMT",
+  "lastPollAt": "2026-11-26T18:52:05.604Z",
+  "lastOkAt": "2026-11-26T18:52:05.604Z",
   "consecutiveFailures": 0,
   "backoffUntil": null,
   "lastError": null
