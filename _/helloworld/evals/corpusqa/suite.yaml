@@ -1,0 +1,47 @@
+name: CorpusQA
+evals:
+  - question: I need learning guides and reference docs for HTML, CSS, and JavaScript. Which site should
+      I use?
+    answer: "MDN Web Docs: Web technology documentation and learning resources."
+    urls:
+      - https://developer.mozilla.org/
+  - question: I need the standards process and published RFCs for Internet protocols. Where should I go?
+    answer: "IETF: Standards-development organization for Internet protocols."
+    urls:
+      - https://www.ietf.org/
+  - question: I want free university course materials and study resources without enrolling. Where can I
+      find them?
+    answer: "MIT OpenCourseWare: Free, openly licensed MIT course materials."
+    urls:
+      - https://ocw.mit.edu/
+  - question: I need the canonical published text of Internet RFC documents. Where should I search?
+    answer: "RFC Editor: RFC Editor repository and publication service."
+    urls:
+      - https://www.rfc-editor.org/
+  - question: I need the living standards for HTML and web platform APIs. Where should I go?
+    answer: "WHATWG: Community maintaining living web platform standards."
+    urls:
+      - https://whatwg.org/
+  - question: I need international analysis and policy guidance about energy systems. Where should I go?
+    answer: "IEA: International Energy Agency analysis and policy resources."
+    urls:
+      - https://www.iea.org/
+  - question: I need US statistics and analysis about energy production, consumption, and prices. Which
+      site should I use?
+    answer: "EIA: US Energy Information Administration data and analysis."
+    urls:
+      - https://www.eia.gov/
+  - question: I need a structured, collaboratively maintained knowledge base of entities and
+      relationships. Where should I go?
+    answer: "Wikidata: Collaborative structured knowledge base."
+    urls:
+      - https://www.wikidata.org/
+  - question: I need downloadable structured datasets extracted from Wikipedia and a knowledge graph I
+      can query with SPARQL. Where can I get them?
+    answer: "DBpedia: an open knowledge graph built from Wikipedia data, with downloads and SPARQL access."
+    urls:
+      - https://www.dbpedia.org/
+  - question: I need free, peer-reviewed textbooks for college courses. Which site should I visit?
+    answer: "OpenStax: Nonprofit publisher of free, peer-reviewed textbooks."
+    urls:
+      - https://openstax.org/

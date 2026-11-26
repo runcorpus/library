@@ -1,0 +1,299 @@
+- name: Wikipedia
+  url: https://www.wikipedia.org/
+
+- name: example.com
+  url: https://example.com/
+
+- name: example.net
+  url: https://example.net/
+
+- name: example.org
+  url: https://example.org/
+
+- name: info.cern.ch
+  url: https://info.cern.ch/
+
+- name: Google
+  url: https://www.google.com/
+
+- name: NGINX
+  url: https://nginx.org/
+
+- name: GitHub
+  url: https://github.com/
+
+- name: Perl
+  url: https://www.perl.org/
+
+- name: MDN Web Docs
+  url: https://developer.mozilla.org/
+
+- name: Hacker News
+  url: https://news.ycombinator.com/
+
+- name: Debian
+  url: https://www.debian.org/
+
+- name: Project Gutenberg
+  url: https://www.gutenberg.org/
+
+- name: BBC
+  url: https://www.bbc.co.uk/
+
+- name: Mozilla
+  url: https://www.mozilla.org/
+
+- name: NASA
+  url: https://www.nasa.gov/
+
+- name: PHP
+  url: https://www.php.net/
+
+- name: MusicBrainz
+  url: https://musicbrainz.org/
+
+- name: OpenStreetMap
+  url: https://www.openstreetmap.org/
+
+- name: arXiv
+  url: https://arxiv.org/
+
+- name: Python documentation
+  url: https://docs.python.org/3/
+
+- name: W3C
+  url: https://www.w3.org/
+
+- name: World Health Organization
+  url: https://www.who.int/
+
+- name: SQLite
+  url: https://sqlite.org/
+
+- name: Our World in Data
+  url: https://ourworldindata.org/
+
+- name: IETF
+  url: https://www.ietf.org/
+
+- name: World Bank
+  url: https://data.worldbank.org/
+
+- name: Internet Society
+  url: https://www.internetsociety.org/
+
+- name: OECD
+  url: https://www.oecd.org/
+
+- name: UNESCO
+  url: https://www.unesco.org/
+
+- name: UNICEF
+  url: https://www.unicef.org/
+
+- name: European Union
+  url: https://european-union.europa.eu/
+
+- name: Library of Congress
+  url: https://www.loc.gov/
+
+- name: Smithsonian
+  url: https://www.si.edu/
+
+- name: NOAA
+  url: https://www.noaa.gov/
+
+- name: jQuery
+  url: https://jquery.com/
+
+- name: NIST
+  url: https://www.nist.gov/
+
+- name: PubMed
+  url: https://pubmed.ncbi.nlm.nih.gov/
+
+- name: CDC
+  url: https://www.cdc.gov/
+
+- name: CERN
+  url: https://home.cern/
+
+- name: curl
+  url: https://curl.se/
+
+- name: Let's Encrypt
+  url: https://letsencrypt.org/
+
+- name: Data.gov
+  url: https://data.gov/
+
+- name: MIT OpenCourseWare
+  url: https://ocw.mit.edu/
+
+- name: Creative Commons
+  url: https://creativecommons.org/
+
+- name: GNU
+  url: https://www.gnu.org/
+
+- name: IANA
+  url: https://www.iana.org/
+
+- name: ICANN
+  url: https://www.icann.org/
+
+- name: RFC Editor
+  url: https://www.rfc-editor.org/
+
+- name: ISO
+  url: https://www.iso.org/
+
+- name: WHATWG
+  url: https://whatwg.org/
+
+- name: ITU
+  url: https://www.itu.int/
+
+- name: WTO
+  url: https://www.wto.org/
+
+- name: OpenSSH
+  url: https://www.openssh.org/
+
+- name: Drupal
+  url: https://www.drupal.org/
+
+- name: IPCC
+  url: https://www.ipcc.ch/
+
+- name: WMO
+  url: https://wmo.int/
+
+- name: UNHCR
+  url: https://www.unhcr.org/
+
+- name: ICRC
+  url: https://www.icrc.org/
+
+- name: GOV.UK
+  url: https://www.gov.uk/
+
+- name: EUR-Lex
+  url: https://eur-lex.europa.eu/
+
+- name: Eurostat
+  url: https://ec.europa.eu/eurostat/
+
+- name: IEA
+  url: https://www.iea.org/
+
+- name: EIA
+  url: https://www.eia.gov/
+
+- name: Crossref
+  url: https://www.crossref.org/
+
+- name: DOI.org
+  url: https://www.doi.org/
+
+- name: Wikidata
+  url: https://www.wikidata.org/
+
+- name: Wikimedia Commons
+  url: https://commons.wikimedia.org/
+
+- name: RSS Advisory Board
+  url: https://www.rssboard.org/
+
+- name: Zenodo
+  url: https://zenodo.org/
+
+- name: DBpedia
+  url: https://www.dbpedia.org/
+
+- name: Semantic Scholar
+  url: https://www.semanticscholar.org/
+
+- name: DOAJ
+  url: https://doaj.org/
+
+- name: Europe PMC
+  url: https://europepmc.org/
+
+- name: NobelPrize.org
+  url: https://www.nobelprize.org/
+
+- name: Apache
+  url: https://www.apache.org/
+
+- name: Node.js
+  url: https://nodejs.org/
+
+- name: NCSA / Mosaic
+  url: https://www.ncsa.illinois.edu/
+
+- name: Natural History Museum
+  url: https://www.nhm.ac.uk/
+
+- name: British Museum
+  url: https://www.britishmuseum.org/
+
+- name: The Metropolitan Museum of Art
+  url: https://www.metmuseum.org/
+
+- name: Europeana
+  url: https://www.europeana.eu/
+
+- name: US Census Bureau
+  url: https://www.census.gov/
+
+- name: Bureau of Labor Statistics
+  url: https://www.bls.gov/
+
+- name: Office for National Statistics
+  url: https://www.ons.gov.uk/
+
+- name: IUCN Red List
+  url: https://www.iucnredlist.org/
+
+- name: Stanford Encyclopedia of Philosophy
+  url: https://plato.stanford.edu/
+
+- name: MathWorld
+  url: https://mathworld.wolfram.com/
+
+- name: OEIS
+  url: https://oeis.org/
+
+- name: Unicode
+  url: https://home.unicode.org/
+
+- name: Git
+  url: https://git-scm.com/
+
+- name: Linux Kernel Archives
+  url: https://www.kernel.org/
+
+- name: OpenStax
+  url: https://openstax.org/
+
+- name: US National Archives
+  url: https://www.archives.gov/
+
+- name: Open Source Initiative
+  url: https://opensource.org/
+
+- name: OWASP
+  url: https://owasp.org/
+
+- name: CISA
+  url: https://www.cisa.gov/
+
+- name: MedlinePlus
+  url: https://medlineplus.gov/
+
+- name: WordPress.org
+  url: https://wordpress.org/
+
+- name: EFF
+  url: https://www.eff.org/

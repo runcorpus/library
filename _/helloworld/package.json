@@ -1,0 +1,23 @@
+{
+  "name": "@library/helloworld",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build.ts",
+    "push": "corpus push _/helloworld:latest",
+    "typecheck": "bun check",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@corpusd/api": "0.5.4",
+    "@joplin/turndown": "4.0.86",
+    "@joplin/turndown-plugin-gfm": "1.0.68",
+    "cheerio": "1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.5",
+    "@types/node": "^26.1.1",
+    "@types/turndown": "^5.0.6",
+    "typescript": "^7.0.2"
+  }
+}

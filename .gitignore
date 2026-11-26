@@ -1,4 +1,5 @@
 node_modules/
+.cache/
 .corpus/
 .DS_Store
 .env*.local
