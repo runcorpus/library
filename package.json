@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "bun run --workspaces check",
+    "typecheck": "bun run --workspaces typecheck",
     "test": "bun run --workspaces test"
   },
   "workspaces": [

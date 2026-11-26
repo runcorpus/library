@@ -1,0 +1,229 @@
+# General
+- id: nyt
+  name: The New York Times
+  category: general
+  url: https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+
+- id: abc-news
+  name: ABC News
+  category: general
+  url: https://abcnews.go.com/abcnews/topstories
+
+- id: ap-flipboard
+  name: Associated Press
+  category: general
+  url: https://flipboard.com/@associatedpress/top-stories-u7govdf1z.rss
+
+- id: bbc-news
+  name: BBC News
+  category: general
+  url: https://feeds.bbci.co.uk/news/rss.xml
+
+- id: guardian-world
+  name: The Guardian
+  category: general
+  url: https://www.theguardian.com/world/rss
+
+- id: npr
+  name: NPR
+  category: general
+  url: https://feeds.npr.org/1001/rss.xml
+
+- id: cbs-news
+  name: CBS News
+  category: general
+  url: https://www.cbsnews.com/latest/rss/main
+
+- id: nbc-news
+  name: NBC News
+  category: general
+  url: https://feeds.nbcnews.com/nbcnews/public/news
+
+- id: pbs-newshour
+  name: PBS NewsHour
+  category: general
+  url: https://www.pbs.org/newshour/feeds/rss/headlines
+
+- id: al-jazeera
+  name: Al Jazeera
+  category: general
+  url: https://www.aljazeera.com/xml/rss/all.xml
+
+- id: the-hill
+  name: The Hill
+  category: general
+  url: https://thehill.com/feed/
+
+- id: politico
+  name: Politico
+  category: general
+  url: https://rss.politico.com/politics-news.xml
+
+- id: cna
+  name: CNA
+  category: general
+  url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml
+
+- id: dw
+  name: Deutsche Welle
+  category: general
+  url: https://rss.dw.com/xml/rss-en-all
+
+# Business
+- id: cnbc
+  name: CNBC
+  category: business
+  url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114
+
+- id: marketwatch
+  name: MarketWatch
+  category: business
+  url: https://feeds.content.dowjones.io/public/rss/mw_topstories
+
+- id: ft
+  name: Financial Times
+  category: business
+  url: https://www.ft.com/rss/home
+
+- id: fortune
+  name: Fortune
+  category: business
+  url: https://fortune.com/feed/
+
+- id: business-insider
+  name: Business Insider
+  category: business
+  url: https://www.businessinsider.com/rss
+
+- id: bbc-business
+  name: BBC Business
+  category: business
+  url: https://feeds.bbci.co.uk/news/business/rss.xml
+
+- id: nyt-business
+  name: The New York Times Business
+  category: business
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+
+- id: forbes
+  name: Forbes
+  category: business
+  url: https://www.forbes.com/business/feed/
+
+- id: wsj-business
+  name: The Wall Street Journal
+  category: business
+  url: https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness
+
+# Tech
+- id: techcrunch
+  name: TechCrunch
+  category: tech
+  url: https://techcrunch.com/feed/
+
+- id: the-verge
+  name: The Verge
+  category: tech
+  url: https://www.theverge.com/rss/index.xml
+
+- id: ars-technica
+  name: Ars Technica
+  category: tech
+  url: https://feeds.arstechnica.com/arstechnica/index
+
+- id: engadget
+  name: Engadget
+  category: tech
+  url: https://www.engadget.com/rss.xml
+
+- id: zdnet
+  name: ZDNET
+  category: tech
+  url: https://www.zdnet.com/news/rss.xml
+
+- id: theregister
+  name: The Register
+  category: tech
+  url: https://www.theregister.com/headlines.atom
+
+- id: bleepingcomputer
+  name: BleepingComputer
+  category: tech
+  url: https://www.bleepingcomputer.com/feed/
+
+- id: mit-tech-review
+  name: MIT Technology Review
+  category: tech
+  url: https://www.technologyreview.com/feed/
+
+- id: 9to5mac
+  name: 9to5Mac
+  category: tech
+  url: https://9to5mac.com/feed/
+
+# Sports
+- id: yahoo-sports
+  name: Yahoo Sports
+  category: sports
+  url: https://sports.yahoo.com/rss/
+
+- id: espn
+  name: ESPN
+  category: sports
+  url: https://www.espn.com/espn/rss/news
+
+- id: bbc-sport
+  name: BBC Sport
+  category: sports
+  url: https://feeds.bbci.co.uk/sport/rss.xml
+
+- id: cbs-sports
+  name: CBS Sports
+  category: sports
+  url: https://www.cbssports.com/rss/headlines/
+
+- id: sky-sports
+  name: Sky Sports
+  category: sports
+  url: https://www.skysports.com/rss/12040
+
+- id: guardian-sport
+  name: The Guardian Sport
+  category: sports
+  url: https://www.theguardian.com/uk/sport/rss
+
+# Entertainment
+- id: variety
+  name: Variety
+  category: entertainment
+  url: https://variety.com/feed/
+
+- id: deadline
+  name: Deadline
+  category: entertainment
+  url: https://deadline.com/feed/
+
+- id: hollywood-reporter
+  name: The Hollywood Reporter
+  category: entertainment
+  url: https://www.hollywoodreporter.com/feed/
+
+- id: indiewire
+  name: IndieWire
+  category: entertainment
+  url: https://www.indiewire.com/feed/
+
+- id: rolling-stone
+  name: Rolling Stone
+  category: entertainment
+  url: https://www.rollingstone.com/feed/
+
+- id: billboard
+  name: Billboard
+  category: entertainment
+  url: https://www.billboard.com/feed/
+
+- id: pitchfork
+  name: Pitchfork
+  category: entertainment
+  url: https://pitchfork.com/feed/feed-news/rss

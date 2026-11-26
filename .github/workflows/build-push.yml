@@ -43,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Check
-        run: bun run check
+      - name: Typecheck
+        run: bun run typecheck
 
       - uses: runcorpus/setup-corpus@56f06e855000c6927fa6c05314bb938788762d34 # v0
 

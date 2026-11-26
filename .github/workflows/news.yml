@@ -1,0 +1,77 @@
+name: Publish News
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-news
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      STORE_BRANCH: library/_/news
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Restore feed data
+        run: |
+          if git ls-remote --exit-code --heads origin "$STORE_BRANCH" >/dev/null 2>&1; then
+            git fetch --depth=1 origin "$STORE_BRANCH"
+            git archive "origin/$STORE_BRANCH" | tar -x -C _/news/feed
+          fi
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.5
+
+      - name: Install dependencies
+        working-directory: _/news
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Typecheck
+        working-directory: _/news
+        run: bun run typecheck
+
+      - name: Test
+        working-directory: _/news
+        run: bun run test
+
+      - uses: runcorpus/setup-corpus@56f06e855000c6927fa6c05314bb938788762d34 # v0
+
+      - name: Login
+        run: corpus login --github-oidc
+
+      - name: Build
+        working-directory: _/news
+        run: bun run build
+
+      - name: Push store branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          STAGING="$RUNNER_TEMP/news-feed"
+          INDEX_FILE="$RUNNER_TEMP/news-feed.index"
+          rm -rf "$STAGING" "$INDEX_FILE"
+          mkdir -p "$STAGING"
+          for dir in _/news/feed/*/; do
+            [ -d "$dir" ] || continue
+            cp -R "$dir" "$STAGING/"
+          done
+          GIT_INDEX_FILE="$INDEX_FILE" GIT_WORK_TREE="$STAGING" git add --all
+          TREE="$(GIT_INDEX_FILE="$INDEX_FILE" git write-tree)"
+          COMMIT="$(git commit-tree "$TREE" -m "chore: update news feed store")"
+          git push --force origin "$COMMIT:refs/heads/$STORE_BRANCH"
+
+      - name: Push corpus
+        working-directory: _/news
+        run: bun run push

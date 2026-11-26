@@ -5,7 +5,7 @@
   "scripts": {
     "build": "bun build.ts",
     "push": "corpus push _/index:latest",
-    "check": "bun check --no-script",
+    "typecheck": "bun check",
     "test": "bun test"
   },
   "dependencies": {
