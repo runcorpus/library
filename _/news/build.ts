@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
 import { SocketClient, type Client, type CorpusInfo } from "@corpusd/api";
 import * as corpus from "@corpusd/api/corpus";
-import { toDocument } from "./feed";
-import { pollIntoStore, readWindow, resolveStoreDir, type PollSummary } from "./feed/poll";
+import { toDocument, type FeedItem } from "./feed";
+import { itemTimestamp, pollIntoStore, readWindow, resolveStoreDir, type PollSummary } from "./feed/poll";
 
 export const CORPUS_REPO = "_/news";
 export const NEWS_DISPLAY_NAME = "News";
@@ -61,6 +61,10 @@ export interface BuildWindowOptions {
   tagName: WindowTagName;
   storeDir?: string;
   now?: Date;
+  /** Parent sealed snapshot to open and append delta items onto instead of creating from scratch. */
+  baseCorpus?: string;
+  /** Pre-selected items to ingest (required when baseCorpus is set; full window items otherwise). */
+  items?: readonly FeedItem[];
   /** Destination tag override, or null for an untagged verification build. */
   tag?: string | null;
   /** Optional extra tags to point at the same sealed snapshot. */
@@ -79,6 +83,8 @@ export interface BuildWindowResult {
   windowLabel: WindowTagConfig["windowLabel"];
   storeDir: string;
   corpus: string;
+  baseCorpus: string | null;
+  ingestedDocuments: number;
   documents: number;
   tags: string[];
   previous: Record<string, string | null>;
@@ -141,19 +147,50 @@ function uniqueTags(tags: (string | null | undefined)[]): string[] {
 }
 
 /**
- * Rebuild a rolling news window cleanly from the daily JSONL store, seal and verify it
- * through the local daemon, move the requested tag(s), and detach superseded untagged snapshots.
+ * Partition items into disjoint delta slices ordered narrowest-to-widest so each wider
+ * window only ingests items older than all narrower windows in the stack.
+ */
+export function partitionWindowItems(
+  items: readonly FeedItem[],
+  windowOrder: readonly WindowTagName[],
+  now: Date,
+): { orderedWindows: WindowTagName[]; slices: Record<WindowTagName, FeedItem[]> } {
+  const orderedWindows = [...new Set(windowOrder)].sort(
+    (a, b) => WINDOW_TAGS[a].windowHours - WINDOW_TAGS[b].windowHours,
+  );
+  const slices: Record<WindowTagName, FeedItem[]> = {
+    today: [],
+    thisweek: [],
+    thismonth: [],
+  };
+  const cutoffs = orderedWindows.map((name) => ({
+    name,
+    cutoffMs: now.getTime() - WINDOW_TAGS[name].windowHours * 3_600_000,
+  }));
+
+  for (const item of items) {
+    const tsMs = Date.parse(itemTimestamp(item));
+    if (!Number.isFinite(tsMs)) continue;
+    for (const entry of cutoffs) {
+      if (tsMs >= entry.cutoffMs) {
+        slices[entry.name].push(item);
+        break;
+      }
+    }
+  }
+
+  return { orderedWindows, slices };
+}
+
+/**
+ * Rebuild a rolling news window cleanly from the daily JSONL store (or stack delta items onto
+ * a parent snapshot), seal and verify it through the local daemon, move the requested tag(s),
+ * and detach superseded untagged snapshots.
  */
 export async function buildWindowTag(options: BuildWindowOptions): Promise<BuildWindowResult> {
   const config = WINDOW_TAGS[options.tagName];
   const storeDir = resolveStoreDir(options.storeDir);
   const now = options.now ?? new Date();
-  const items = await readWindow(storeDir, config.windowHours, now);
-  if (!items.length && !options.allowEmpty) {
-    throw new Error(`No news items found in ${config.windowLabel} window at ${storeDir}`);
-  }
-
-  const documents = items.map(toDocument);
   const labels = windowLabels(config);
   const client = options.client ?? new SocketClient();
   const verifyClient = options.verifyClient ?? new SocketClient();
@@ -170,19 +207,35 @@ export async function buildWindowTag(options: BuildWindowOptions): Promise<Build
     previous[tag] = (await lookupInfo(verifyClient, tag))?.id ?? null;
   }
 
-  const attachedBefore = new Set(await corpus.ls(client));
-  const created = await corpus.create(client, { labels });
-  const createdOwned = !attachedBefore.has(created.id);
+  let expectedDocuments: number;
+  let ingestedDocuments: number;
+  let sealedCorpus: string;
+  let sealedDocuments: number;
+  let ownedEmptyId: string | null = null;
 
-  let sealedCorpus = created.id;
-  let sealedDocuments = 0;
+  if (options.baseCorpus !== undefined) {
+    if (options.items === undefined) {
+      throw new Error("items must be provided when building onto baseCorpus");
+    }
+    const baseInfo = await corpus.info(verifyClient, options.baseCorpus);
+    if (baseInfo.open) {
+      throw new Error(`Base corpus ${options.baseCorpus} is still open`);
+    }
+    const deltaItems = options.items;
+    expectedDocuments = baseInfo.documents + deltaItems.length;
+    if (expectedDocuments === 0 && !options.allowEmpty) {
+      throw new Error(`No news items found in ${config.windowLabel} window at ${storeDir}`);
+    }
+    const documents = deltaItems.map(toDocument);
+    ingestedDocuments = documents.length;
 
-  if (documents.length > 0) {
-    const { writer } = await corpus.open(client, created.id);
+    const { writer } = await corpus.open(client, options.baseCorpus);
     try {
-      const { inserted } = await corpus.ingest(client, writer, documents);
-      if (inserted !== documents.length) {
-        throw new Error(`Expected ${documents.length} documents, ingested ${inserted}`);
+      if (documents.length > 0) {
+        const { inserted } = await corpus.ingest(client, writer, documents);
+        if (inserted !== documents.length) {
+          throw new Error(`Expected ${documents.length} documents, ingested ${inserted}`);
+        }
       }
     } catch (error) {
       try {
@@ -192,16 +245,55 @@ export async function buildWindowTag(options: BuildWindowOptions): Promise<Build
       }
       throw error;
     }
-    const sealed = await corpus.close(client, writer);
+    const sealed = await corpus.close(client, writer, { labels });
     sealedCorpus = sealed.corpus;
     sealedDocuments = sealed.documents;
+  } else {
+    const items = options.items ?? (await readWindow(storeDir, config.windowHours, now));
+    expectedDocuments = items.length;
+    if (!items.length && !options.allowEmpty) {
+      throw new Error(`No news items found in ${config.windowLabel} window at ${storeDir}`);
+    }
+
+    const documents = items.map(toDocument);
+    ingestedDocuments = documents.length;
+    const attachedBefore = new Set(await corpus.ls(client));
+    const created = await corpus.create(client, { labels });
+    const createdOwned = !attachedBefore.has(created.id);
+
+    sealedCorpus = created.id;
+    sealedDocuments = 0;
+
+    if (documents.length > 0) {
+      const { writer } = await corpus.open(client, created.id);
+      try {
+        const { inserted } = await corpus.ingest(client, writer, documents);
+        if (inserted !== documents.length) {
+          throw new Error(`Expected ${documents.length} documents, ingested ${inserted}`);
+        }
+      } catch (error) {
+        try {
+          await corpus.close(client, writer);
+        } catch (closeError) {
+          throw new AggregateError([error, closeError], `Could not ingest or close writer ${writer}`);
+        }
+        throw error;
+      }
+      const sealed = await corpus.close(client, writer);
+      sealedCorpus = sealed.corpus;
+      sealedDocuments = sealed.documents;
+    }
+
+    if (createdOwned && created.id !== sealedCorpus) {
+      ownedEmptyId = created.id;
+    }
   }
 
   const verified = await corpus.info(verifyClient, sealedCorpus);
   if (
     verified.open ||
-    sealedDocuments !== documents.length ||
-    verified.documents !== documents.length ||
+    sealedDocuments !== expectedDocuments ||
+    verified.documents !== expectedDocuments ||
     !labelsMatch(verified.labels, labels)
   ) {
     throw new Error(`Could not verify sealed ${config.name} snapshot ${sealedCorpus}`);
@@ -219,8 +311,8 @@ export async function buildWindowTag(options: BuildWindowOptions): Promise<Build
 
   const detached: string[] = [];
   const candidates = new Set<string>();
-  if (createdOwned && created.id !== sealedCorpus) {
-    candidates.add(created.id);
+  if (ownedEmptyId) {
+    candidates.add(ownedEmptyId);
   }
   if (detachSuperseded) {
     for (const priorId of Object.values(previous)) {
@@ -246,6 +338,8 @@ export async function buildWindowTag(options: BuildWindowOptions): Promise<Build
     windowLabel: config.windowLabel,
     storeDir,
     corpus: sealedCorpus,
+    baseCorpus: options.baseCorpus ?? null,
+    ingestedDocuments,
     documents: verified.documents,
     tags: targetTags,
     previous,
@@ -255,29 +349,36 @@ export async function buildWindowTag(options: BuildWindowOptions): Promise<Build
 }
 
 /**
- * Optionally poll feeds into the durable store, then rebuild selected (or all) rolling news window tags.
+ * Optionally poll feeds into the durable store, then rebuild selected (or all) rolling news
+ * window tags in a single stacked pass from narrowest to widest for chunk reuse.
  */
 export async function buildAllWindows(options: BuildAllOptions = {}): Promise<BuildAllResult> {
   const storeDir = resolveStoreDir(options.storeDir);
   const now = options.now ?? new Date();
   const shouldPoll = options.poll ?? true;
   const poll = shouldPoll ? await pollIntoStore(storeDir, undefined, now) : null;
-  const targetWindows = options.tags?.length ? options.tags : WINDOW_ORDER;
+  const requestedWindows = options.tags?.length ? options.tags : WINDOW_ORDER;
+  const maxWindowHours = Math.max(...requestedWindows.map((name) => WINDOW_TAGS[name].windowHours));
+  const allItems = await readWindow(storeDir, maxWindowHours, now);
+  const { orderedWindows, slices } = partitionWindowItems(allItems, requestedWindows, now);
 
   const windows: BuildWindowResult[] = [];
-  for (const tagName of targetWindows) {
-    windows.push(
-      await buildWindowTag({
-        tagName,
-        storeDir,
-        now,
-        tag: options.untagged ? null : undefined,
-        detachSuperseded: options.detachSuperseded,
-        allowEmpty: options.allowEmpty,
-        client: options.client,
-        verifyClient: options.verifyClient,
-      }),
-    );
+  let baseCorpus: string | undefined;
+  for (const tagName of orderedWindows) {
+    const built = await buildWindowTag({
+      tagName,
+      storeDir,
+      now,
+      baseCorpus,
+      items: slices[tagName],
+      tag: options.untagged ? null : undefined,
+      detachSuperseded: options.detachSuperseded,
+      allowEmpty: options.allowEmpty,
+      client: options.client,
+      verifyClient: options.verifyClient,
+    });
+    windows.push(built);
+    baseCorpus = built.corpus;
   }
 
   return { poll, windows };

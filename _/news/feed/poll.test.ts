@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ALLOWED_LABEL_KEYS, WINDOW_TAGS, windowLabels } from "../build";
+import { ALLOWED_LABEL_KEYS, WINDOW_TAGS, partitionWindowItems, windowLabels } from "../build";
 import { canonicalizeUrl, loadFeeds, parseFeedsYaml, toDocument, type FeedItem } from "./index";
 import { pruneOldDays, readFeedState, readWindow, upsertFeedItems, writeFeedState } from "./poll";
 
@@ -118,6 +118,31 @@ describe("feeds mapping", () => {
       expect(Object.keys(labels).sort()).toEqual([...ALLOWED_LABEL_KEYS]);
       expect(labels.window).toBe(config.windowLabel);
     }
+  });
+
+  test("partitionWindowItems builds disjoint delta slices ordered narrowest-first", () => {
+    const now = new Date("2026-11-24T15:00:00.000Z");
+    const items = [
+      makeItem({ url: "https://example.com/in-24h", publishedAt: "2026-11-24T10:00:00.000Z" }),
+      makeItem({ url: "https://example.com/in-7d", publishedAt: "2026-11-21T15:00:00.000Z" }),
+      makeItem({ url: "https://example.com/in-30d", publishedAt: "2026-11-01T15:00:00.000Z" }),
+      makeItem({ url: "https://example.com/too-old", publishedAt: "2026-10-20T15:00:00.000Z" }),
+    ];
+
+    const full = partitionWindowItems(items, ["today", "thisweek", "thismonth"], now);
+    expect(full.orderedWindows).toEqual(["today", "thisweek", "thismonth"]);
+    expect(full.slices.today.map((item) => item.url)).toEqual(["https://example.com/in-24h"]);
+    expect(full.slices.thisweek.map((item) => item.url)).toEqual(["https://example.com/in-7d"]);
+    expect(full.slices.thismonth.map((item) => item.url)).toEqual(["https://example.com/in-30d"]);
+
+    const subset = partitionWindowItems(items, ["thismonth", "today", "today"], now);
+    expect(subset.orderedWindows).toEqual(["today", "thismonth"]);
+    expect(subset.slices.today.map((item) => item.url)).toEqual(["https://example.com/in-24h"]);
+    expect(subset.slices.thisweek).toEqual([]);
+    expect(subset.slices.thismonth.map((item) => item.url)).toEqual([
+      "https://example.com/in-7d",
+      "https://example.com/in-30d",
+    ]);
   });
 });
 
