@@ -1,4 +1,4 @@
-name: Publish News
+name: _/news
 
 on:
   schedule:

@@ -1,4 +1,4 @@
-name: Publish Corpus
+name: _/index
 
 on:
   schedule:
