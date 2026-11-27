@@ -1,6 +1,6 @@
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { FeedHttpError, fetchFeed, loadFeeds, type FeedItem, type FeedSource } from "./index";
+import { FeedHttpError, fetchFeed, loadFeeds, usableSummary, type FeedItem, type FeedSource } from "./index";
 
 export interface FeedCursor {
   etag: string | null;
@@ -102,6 +102,72 @@ async function listFeedIds(storeDir: string): Promise<string[]> {
   }
 }
 
+function mergeStringLists(primary: readonly string[], secondary: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of [...primary, ...secondary]) {
+    const value = raw.trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+}
+
+/**
+ * Merge two observations of the same canonical URL while preserving the earliest firstSeenAt
+ * and non-empty metadata fields from the sparser copy's counterpart.
+ */
+export function mergeFeedItems(prior: FeedItem, incoming: FeedItem): FeedItem {
+  const firstSeenAt = prior.firstSeenAt <= incoming.firstSeenAt ? prior.firstSeenAt : incoming.firstSeenAt;
+  const priorIsTrends = prior.feedId.startsWith("google-trends-");
+  const incomingIsTrends = incoming.feedId.startsWith("google-trends-");
+
+  let winner: FeedItem;
+  let other: FeedItem;
+  if (priorIsTrends !== incomingIsTrends) {
+    winner = priorIsTrends ? incoming : prior;
+    other = priorIsTrends ? prior : incoming;
+  } else {
+    const priorFreshness = prior.updatedAt ?? prior.firstSeenAt;
+    const incomingFreshness = incoming.updatedAt ?? incoming.firstSeenAt;
+    winner = incomingFreshness >= priorFreshness ? incoming : prior;
+    other = winner === incoming ? prior : incoming;
+  }
+
+  const summary = usableSummary(winner.summary)
+    ? winner.summary
+    : usableSummary(other.summary)
+      ? other.summary
+      : winner.summary || other.summary;
+  const candidatePublisher = winner.publisher ?? other.publisher;
+  const publisher =
+    candidatePublisher && candidatePublisher.toLowerCase() !== winner.source.toLowerCase()
+      ? candidatePublisher
+      : null;
+  const updatedAt =
+    prior.updatedAt && incoming.updatedAt
+      ? prior.updatedAt >= incoming.updatedAt
+        ? prior.updatedAt
+        : incoming.updatedAt
+      : (prior.updatedAt ?? incoming.updatedAt);
+
+  return {
+    ...winner,
+    summary,
+    content: winner.content || other.content,
+    caption: winner.caption || other.caption,
+    publisher,
+    publishedAt: winner.publishedAt ?? other.publishedAt,
+    updatedAt,
+    authors: mergeStringLists(winner.authors, other.authors),
+    tags: mergeStringLists(winner.tags, other.tags),
+    firstSeenAt,
+  };
+}
+
 /**
  * Upsert items for one feed into <storeDir>/<feedId>/YYYY-MM-DD.jsonl.
  * Preserves the earliest firstSeenAt for an already stored URL.
@@ -136,10 +202,7 @@ export async function upsertFeedItems(
         added++;
         continue;
       }
-      const merged: FeedItem = {
-        ...item,
-        firstSeenAt: prior.firstSeenAt <= item.firstSeenAt ? prior.firstSeenAt : item.firstSeenAt,
-      };
+      const merged = mergeFeedItems(prior, item);
       if (normalizeForCompare(prior) === normalizeForCompare(merged)) {
         unchanged++;
       } else {
@@ -194,11 +257,7 @@ export async function readWindow(
           deduped.set(item.url, item);
           continue;
         }
-        const firstSeenAt = prior.firstSeenAt <= item.firstSeenAt ? prior.firstSeenAt : item.firstSeenAt;
-        const priorFreshness = prior.updatedAt ?? prior.firstSeenAt;
-        const itemFreshness = item.updatedAt ?? item.firstSeenAt;
-        const winner = itemFreshness >= priorFreshness ? item : prior;
-        deduped.set(item.url, { ...winner, firstSeenAt });
+        deduped.set(item.url, mergeFeedItems(prior, item));
       }
     }
   }

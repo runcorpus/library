@@ -27,8 +27,9 @@ fragments stripped). Illustrative shape:
 }
 ```
 
-`url` is the stable document identity. `description` is truncated to at most
-200 characters on a word boundary when present, and `description`, `date`,
+`url` is the stable document identity. `description` falls back to content when
+summary is absent, filters out non-abstract link boilerplate, and is truncated to
+at most 500 characters on a word boundary when present; `description`, `date`,
 `updated_at`, `publisher`, and `authors` are omitted when absent. `body` uses
 `text/plain` combining non-redundant full summary/content, media caption,
 authors, tags, and source attribution without label boilerplate. Title and body
@@ -36,14 +37,16 @@ are indexed; metadata is retained for search results.
 
 ## Source / Dataset
 
-The dataset is polled from the configured public RSS and Atom feeds in
-`feeds.yaml` (loaded and validated by `feed/index.ts`) using conditional GET
-(`ETag` and `If-Modified-Since`) and per-feed exponential backoff.
+The dataset is polled from the configured public RSS, Atom, and Google News
+Sitemap feeds in `feeds.yaml` (loaded and validated by `feed/index.ts`) using
+conditional GET (`ETag` and `If-Modified-Since`) and per-feed exponential
+backoff.
 
 `feed/poll.ts` persists fetched items in a per-feed UTC day-bucketed JSONL
 store under `_/news/feed/` (overridable with `NEWS_STORE_DIR`):
 `_/news/feed/<feedId>/YYYY-MM-DD.jsonl` and `_/news/feed/<feedId>/state.json`,
-preserving the earliest `firstSeenAt` per canonical URL.
+preserving the earliest `firstSeenAt` and merging non-empty metadata fields
+across overlapping feeds per canonical URL.
 
 `bun run build` polls the feeds into the store, reads the widest rolling window
 once from `readWindow(storeDir, maxWindowHours)`, and builds the three

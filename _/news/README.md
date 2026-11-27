@@ -1,9 +1,9 @@
 # News
 
-News (`_/news`) is a rolling English-language news corpus built from public RSS
-and Atom feeds across general and local news, business, technology, science,
-health, sports, gaming, entertainment, travel, automotive, education, and
-lifestyle outlets.
+News (`_/news`) is a rolling English-language news corpus built from public RSS,
+Atom, and news sitemap feeds across general and local news, business,
+technology, science, health, sports, gaming, entertainment, travel, automotive,
+education, and lifestyle outlets.
 
 ## What you can do
 
@@ -23,6 +23,6 @@ lifestyle outlets.
 
 ## Coverage
 
-Only entries published in the configured public RSS and Atom feeds are indexed
-to route you to publisher URLs. Full articles are not fetched or stored; open
-the result URL to read the article at its source.
+Only entries published in the configured public RSS, Atom, and news sitemap
+feeds are indexed to route you to publisher URLs. Full articles are not fetched
+or stored; open the result URL to read the article at its source.

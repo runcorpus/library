@@ -62,7 +62,7 @@ export type FetchFeedResult =
   | {
       status: "ok";
       source: FeedSource;
-      format: "rss" | "atom";
+      format: "rss" | "atom" | "sitemap";
       etag: string | null;
       lastModified: string | null;
       ms: number;
@@ -329,6 +329,92 @@ function readXmlTag(block: string, tagName: string): string | undefined {
   return match?.[1];
 }
 
+function readPrefixedXmlTag(block: string, localName: string): string | undefined {
+  const match = block.match(
+    new RegExp(`<(?:[A-Za-z0-9_-]+:)?${localName}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/(?:[A-Za-z0-9_-]+:)?${localName}>`),
+  );
+  return match?.[1];
+}
+
+export function isNewsSitemap(xml: string): boolean {
+  return (
+    xml.includes("<urlset") &&
+    (xml.includes("sitemap-news") || /<(?:[A-Za-z0-9_-]+:)?news(?:\s[^>]*)?>/.test(xml))
+  );
+}
+
+/**
+ * Extract articles from a Google News Sitemap `<urlset>` XML payload.
+ */
+export function extractNewsSitemapItems(source: FeedSource, xml: string, seenAt: string): FeedItem[] {
+  const byUrl = new Map<string, FeedItem>();
+  for (const urlMatch of xml.matchAll(/<url(?:\s[^>]*)?>([\s\S]*?)<\/url>/g)) {
+    const urlXml = urlMatch[1]!;
+    const rawUrl = unwrapXmlText(readXmlTag(urlXml, "loc"));
+    const url = rawUrl ? canonicalizeUrl(rawUrl) : null;
+    if (!url) continue;
+
+    const newsBlock = urlXml.match(
+      /<(?:[A-Za-z0-9_-]+:)?news(?:\s[^>]*)?>([\s\S]*?)<\/(?:[A-Za-z0-9_-]+:)?news>/,
+    )?.[1];
+    if (!newsBlock) continue;
+
+    const language = stripHtml(unwrapXmlText(readPrefixedXmlTag(newsBlock, "language"))).toLowerCase();
+    if (language && !language.startsWith("en")) continue;
+
+    const title = stripHtml(unwrapXmlText(readPrefixedXmlTag(newsBlock, "title")));
+    if (!title) continue;
+
+    const publishedAt = toRfc3339(unwrapXmlText(readPrefixedXmlTag(newsBlock, "publication_date")));
+    const lastmod = toRfc3339(unwrapXmlText(readXmlTag(urlXml, "lastmod")));
+    const updatedAt = lastmod && lastmod !== publishedAt ? lastmod : null;
+
+    const rawPublisher = stripHtml(unwrapXmlText(readPrefixedXmlTag(newsBlock, "name")));
+    const publisher =
+      rawPublisher && rawPublisher.toLowerCase() !== source.name.toLowerCase() ? rawPublisher : null;
+
+    const keywords = unwrapXmlText(readPrefixedXmlTag(newsBlock, "keywords"));
+    const stockTickers = unwrapXmlText(readPrefixedXmlTag(newsBlock, "stock_tickers"));
+    const tags = uniqueStrings([
+      ...(keywords ? keywords.split(",") : []),
+      ...(stockTickers ? stockTickers.split(",") : []),
+    ]);
+
+    const imageBlock = urlXml.match(
+      /<(?:[A-Za-z0-9_-]+:)?image(?:\s[^>]*)?>([\s\S]*?)<\/(?:[A-Za-z0-9_-]+:)?image>/,
+    )?.[1];
+    const rawCaption = imageBlock ? stripHtml(unwrapXmlText(readPrefixedXmlTag(imageBlock, "caption"))) : "";
+    const caption = rawCaption && rawCaption.toLowerCase() !== title.toLowerCase() ? rawCaption : "";
+
+    const existing = byUrl.get(url);
+    if (existing) {
+      existing.tags = uniqueStrings([...existing.tags, ...tags]);
+      if (!existing.caption && caption) existing.caption = caption;
+      if (!existing.updatedAt && updatedAt) existing.updatedAt = updatedAt;
+      continue;
+    }
+
+    byUrl.set(url, {
+      url,
+      guid: url,
+      feedId: source.id,
+      source: source.name,
+      publisher,
+      category: source.category,
+      title,
+      summary: "",
+      content: "",
+      caption,
+      authors: [],
+      tags,
+      publishedAt,
+      updatedAt,
+      firstSeenAt: seenAt,
+    });
+  }
+  return [...byUrl.values()];
+}
+
 export function isGoogleTrendsFeed(xml: string): boolean {
   return (
     xml.includes(`xmlns:ht="${GOOGLE_TRENDS_NS}"`) ||
@@ -387,7 +473,22 @@ export function extractGoogleTrendsItems(source: FeedSource, xml: string, seenAt
   return [...byUrl.values()];
 }
 
-export const MAX_DESCRIPTION_CHARS = 200;
+export const MAX_DESCRIPTION_CHARS = 500;
+
+const BOILERPLATE_SUMMARY_PATTERNS = [
+  /^comments$/i,
+  /^Article URL:\s*https?:\/\/\S+\s+Comments URL:\s*https?:\/\//i,
+];
+
+/**
+ * Drop empty or non-abstract link boilerplate (e.g. Lobsters "Comments" and HN link stubs).
+ */
+export function usableSummary(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  if (BOILERPLATE_SUMMARY_PATTERNS.some((pattern) => pattern.test(trimmed))) return "";
+  return trimmed;
+}
 
 /**
  * Truncate retained summary metadata to at most maxChars on a word boundary.
@@ -404,7 +505,10 @@ export function truncateDescription(text: string, maxChars = MAX_DESCRIPTION_CHA
 }
 
 export function toDocument(item: FeedItem): IngestDocument {
-  const description = item.summary ? truncateDescription(item.summary) : "";
+  const summary = usableSummary(item.summary);
+  const content = usableSummary(item.content);
+  const rawDescription = summary || content;
+  const description = rawDescription ? truncateDescription(rawDescription) : "";
   const meta: IngestDocument["meta"] = {
     title: item.title,
     ...(description && { description }),
@@ -418,11 +522,11 @@ export function toDocument(item: FeedItem): IngestDocument {
   };
 
   const sections: string[] = [];
-  const primaryText = item.content && (!item.summary || item.content.includes(item.summary))
-    ? item.content
-    : item.summary;
+  const primaryText = content && (!summary || content.includes(summary))
+    ? content
+    : summary;
   if (primaryText) sections.push(primaryText);
-  if (item.content && item.content !== primaryText) sections.push(item.content);
+  if (content && content !== primaryText) sections.push(content);
   if (item.caption && !sections.some((section) => section.includes(item.caption))) {
     sections.push(item.caption);
   }
@@ -485,7 +589,20 @@ export async function fetchFeed(source: FeedSource, options: FetchFeedOptions = 
       `HTTP ${response.status} ${response.statusText}`,
     );
   }
-  const xml = await response.text();
+  const rawBytes = new Uint8Array(await response.arrayBuffer());
+  const isGzip = rawBytes.length >= 2 && rawBytes[0] === 0x1f && rawBytes[1] === 0x8b;
+  const xml = new TextDecoder().decode(isGzip ? Bun.gunzipSync(rawBytes) : rawBytes);
+  if (isNewsSitemap(xml)) {
+    return {
+      status: "ok",
+      source,
+      format: "sitemap",
+      etag,
+      lastModified,
+      ms,
+      items: extractNewsSitemapItems(source, xml, seenAt),
+    };
+  }
   const parsed = parseFeed(xml);
   let items: FeedItem[];
   if (parsed.format === "rss") {

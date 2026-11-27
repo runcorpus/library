@@ -6,13 +6,15 @@ import { ALLOWED_LABEL_KEYS, WINDOW_TAGS, partitionWindowItems, windowLabels } f
 import {
   canonicalizeUrl,
   extractGoogleTrendsItems,
+  extractNewsSitemapItems,
   isGoogleTrendsFeed,
+  isNewsSitemap,
   loadFeeds,
   parseFeedsYaml,
   toDocument,
   type FeedItem,
 } from "./index";
-import { pruneOldDays, readFeedState, readWindow, upsertFeedItems, writeFeedState } from "./poll";
+import { mergeFeedItems, pruneOldDays, readFeedState, readWindow, upsertFeedItems, writeFeedState } from "./poll";
 
 function makeItem(overrides: Partial<FeedItem> = {}): FeedItem {
   return {
@@ -111,13 +113,34 @@ describe("feeds mapping", () => {
       ].join("\n"),
     );
 
-    const longSummary = Array.from({ length: 40 }, (_, i) => `word${i}`).join(" ");
+    const longSummary = Array.from({ length: 100 }, (_, i) => `word${i}`).join(" ");
     const truncated = toDocument(makeItem({ summary: longSummary, content: "" }));
     const desc = String(truncated.meta.description);
-    expect(desc.length).toBeLessThanOrEqual(200);
+    expect(desc.length).toBeLessThanOrEqual(500);
     expect(desc.endsWith("…")).toBe(true);
     expect(desc).not.toMatch(/\s…$/);
     expect(truncated.body?.data).toContain(longSummary);
+
+    const fallbackDoc = toDocument(
+      makeItem({
+        summary: "",
+        content: "Content paragraph used when feed summary is empty.",
+      }),
+    );
+    expect(fallbackDoc.meta.description).toBe("Content paragraph used when feed summary is empty.");
+
+    const lobstersDoc = toDocument(makeItem({ summary: "Comments", content: "" }));
+    expect(lobstersDoc.meta.description).toBeUndefined();
+    expect(lobstersDoc.body?.data).toBe("Jane Doe\nEconomy, Markets\nThe New York Times");
+
+    const hnDoc = toDocument(
+      makeItem({
+        summary: "Article URL: https://example.com/post Comments URL: https://news.ycombinator.com/item?id=1 Points: 42 # Comments: 10",
+        content: "",
+      }),
+    );
+    expect(hnDoc.meta.description).toBeUndefined();
+    expect(hnDoc.body?.data).toBe("Jane Doe\nEconomy, Markets\nThe New York Times");
   });
 
   test("windowLabels keeps only allowlisted public corpus labels", () => {
@@ -227,6 +250,80 @@ describe("feeds mapping", () => {
     expect(doc.body?.data).toContain("topic alpha & beta, topic gamma");
     expect(doc.body?.data).toContain("Google Trends US, ESPN");
   });
+
+  test("extractNewsSitemapItems handles standard and custom prefixes, filtering, and duplicate URLs", () => {
+    const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:n="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc><![CDATA[https://www.espn.com/nba/story?id=9&utm_source=sitemap]]></loc>
+    <lastmod>2026-11-27T09:15:00Z</lastmod>
+    <image:image>
+      <image:title>Wrong Image Title</image:title>
+      <image:caption>Arena warmups before tipoff.</image:caption>
+    </image:image>
+    <n:news>
+      <n:publication>
+        <n:name>ESPN</n:name>
+        <n:language>en</n:language>
+      </n:publication>
+      <n:publication_date>2026-11-27T08:00:00Z</n:publication_date>
+      <n:title><![CDATA[Star Guard Cleared &amp; Ready]]></n:title>
+      <n:keywords>NBA, Playoffs</n:keywords>
+      <n:stock_tickers>DIS</n:stock_tickers>
+    </n:news>
+  </url>
+  <url>
+    <loc>https://www.espn.com/nba/story?id=9</loc>
+    <n:news>
+      <n:publication>
+        <n:name>ESPN</n:name>
+        <n:language>en</n:language>
+      </n:publication>
+      <n:publication_date>2026-11-27T08:00:00Z</n:publication_date>
+      <n:title>Star Guard Cleared &amp; Ready</n:title>
+      <n:keywords>Basketball</n:keywords>
+    </n:news>
+  </url>
+  <url>
+    <loc>https://www.espn.com/deportes/nota</loc>
+    <n:news>
+      <n:publication>
+        <n:name>ESPN Deportes</n:name>
+        <n:language>es</n:language>
+      </n:publication>
+      <n:publication_date>2026-11-27T08:00:00Z</n:publication_date>
+      <n:title>Nota en español</n:title>
+    </n:news>
+  </url>
+</urlset>`;
+
+    expect(isNewsSitemap(sitemapXml)).toBe(true);
+    expect(isNewsSitemap("<rss version=\"2.0\"><channel></channel></rss>")).toBe(false);
+
+    const items = extractNewsSitemapItems(
+      {
+        id: "espn-sitemap",
+        name: "ESPN",
+        category: "sports",
+        url: "https://www.espn.com/googlenewssitemap",
+      },
+      sitemapXml,
+      "2026-11-27T09:20:00.000Z",
+    );
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      url: "https://www.espn.com/nba/story?id=9",
+      title: "Star Guard Cleared & Ready",
+      publisher: null,
+      caption: "Arena warmups before tipoff.",
+      tags: ["NBA", "Playoffs", "DIS", "Basketball"],
+      publishedAt: "2026-11-27T08:00:00.000Z",
+      updatedAt: "2026-11-27T09:15:00.000Z",
+    });
+  });
 });
 
 describe("per-feed JSONL store", () => {
@@ -332,6 +429,77 @@ describe("per-feed JSONL store", () => {
       expect(pruned).toEqual(["ap/2026-11-23.jsonl", "nyt/2026-11-23.jsonl"]);
       expect(await readdir(join(dir, "nyt"))).toEqual(["state.json"]);
       expect(await readdir(join(dir, "ap"))).toEqual([]);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("readWindow merges RSS summary/authors with newer sitemap tags and prefers direct publisher over Google Trends", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "news-merge-"));
+    try {
+      const now = new Date("2026-11-27T12:00:00.000Z");
+      await upsertFeedItems(dir, "nyt", [
+        makeItem({
+          feedId: "nyt",
+          url: "https://www.nytimes.com/2026/11/27/business/story.html",
+          source: "The New York Times",
+          summary: "Detailed RSS summary from NYT.",
+          content: "Full RSS content.",
+          authors: ["Jane Doe"],
+          tags: ["Economy"],
+          publishedAt: "2026-11-27T08:00:00.000Z",
+          firstSeenAt: "2026-11-27T08:05:00.000Z",
+        }),
+      ]);
+      await upsertFeedItems(dir, "nyt-sitemap", [
+        makeItem({
+          feedId: "nyt-sitemap",
+          url: "https://www.nytimes.com/2026/11/27/business/story.html",
+          source: "The New York Times",
+          summary: "",
+          content: "",
+          authors: [],
+          tags: ["Markets", "economy"],
+          publishedAt: "2026-11-27T08:00:00.000Z",
+          updatedAt: "2026-11-27T09:00:00.000Z",
+          firstSeenAt: "2026-11-27T09:05:00.000Z",
+        }),
+      ]);
+      await upsertFeedItems(dir, "google-trends-us", [
+        makeItem({
+          feedId: "google-trends-us",
+          url: "https://www.nytimes.com/2026/11/27/business/story.html",
+          source: "Google Trends US",
+          publisher: "The New York Times",
+          summary: "",
+          content: "",
+          authors: [],
+          tags: ["inflation report"],
+          publishedAt: "2026-11-27T10:00:00.000Z",
+          updatedAt: null,
+          firstSeenAt: "2026-11-27T10:35:00.000Z",
+        }),
+      ]);
+
+      const items = await readWindow(dir, 24, now);
+      expect(items).toHaveLength(1);
+      expect(items[0]).toMatchObject({
+        feedId: "nyt-sitemap",
+        source: "The New York Times",
+        publisher: null,
+        summary: "Detailed RSS summary from NYT.",
+        content: "Full RSS content.",
+        authors: ["Jane Doe"],
+        tags: ["Markets", "economy", "inflation report"],
+        firstSeenAt: "2026-11-27T08:05:00.000Z",
+        updatedAt: "2026-11-27T09:00:00.000Z",
+      });
+
+      const merged = mergeFeedItems(
+        makeItem({ summary: "Comments", content: "" }),
+        makeItem({ summary: "Real abstract.", updatedAt: "2026-11-24T13:00:00.000Z" }),
+      );
+      expect(merged.summary).toBe("Real abstract.");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

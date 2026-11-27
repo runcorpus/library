@@ -685,3 +685,190 @@
   name: The Kitchn
   category: lifestyle
   url: https://www.thekitchn.com/main.rss
+
+# News Sitemaps
+- id: nyt-sitemap
+  name: The New York Times
+  category: general
+  url: https://www.nytimes.com/sitemaps/new/news.xml.gz
+
+- id: bbc-sitemap
+  name: BBC News
+  category: general
+  url: https://www.bbc.com/sitemaps/https-sitemap-com-news-1.xml
+
+- id: guardian-sitemap
+  name: The Guardian
+  category: general
+  url: https://www.theguardian.com/sitemaps/news.xml
+
+- id: cnn-sitemap
+  name: CNN
+  category: general
+  url: https://www.cnn.com/sitemap/news.xml
+
+- id: fox-news-sitemap
+  name: Fox News
+  category: general
+  url: https://www.foxnews.com/sitemap.xml?type=news
+
+- id: usa-today-sitemap
+  name: USA Today
+  category: general
+  url: https://www.usatoday.com/news-sitemap.xml
+
+- id: nbc-news-sitemap
+  name: NBC News
+  category: general
+  url: https://www.nbcnews.com/sitemap/nbcnews/sitemap-news
+
+- id: abc-news-sitemap
+  name: ABC News
+  category: general
+  url: https://abcnews.go.com/xmlLatestStories
+
+- id: axios-sitemap
+  name: Axios
+  category: general
+  url: https://www.axios.com/sitemaps/news.xml
+
+- id: bloomberg-sitemap
+  name: Bloomberg
+  category: business
+  url: https://www.bloomberg.com/sitemaps/news/latest.xml
+
+- id: ft-sitemap
+  name: Financial Times
+  category: business
+  url: https://www.ft.com/sitemaps/news.xml
+
+- id: cnbc-sitemap
+  name: CNBC
+  category: business
+  url: https://www.cnbc.com/sitemap_news.xml
+
+- id: espn-sitemap
+  name: ESPN
+  category: sports
+  url: https://www.espn.com/googlenewssitemap
+
+# Section & International Feeds
+- id: nyt-world
+  name: The New York Times World
+  category: general
+  url: https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+
+- id: nyt-politics
+  name: The New York Times Politics
+  category: general
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml
+
+- id: nyt-tech
+  name: The New York Times Technology
+  category: tech
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+
+- id: nyt-health
+  name: The New York Times Health
+  category: health
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Health.xml
+
+- id: nyt-sports
+  name: The New York Times Sports
+  category: sports
+  url: https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml
+
+- id: bbc-world
+  name: BBC World
+  category: general
+  url: https://feeds.bbci.co.uk/news/world/rss.xml
+
+- id: bbc-us-canada
+  name: BBC US & Canada
+  category: general
+  url: https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml
+
+- id: bbc-tech
+  name: BBC Technology
+  category: tech
+  url: https://feeds.bbci.co.uk/news/technology/rss.xml
+
+- id: bbc-science
+  name: BBC Science & Environment
+  category: science
+  url: https://feeds.bbci.co.uk/news/science_and_environment/rss.xml
+
+- id: guardian-us
+  name: The Guardian US
+  category: general
+  url: https://www.theguardian.com/us-news/rss
+
+- id: guardian-business
+  name: The Guardian Business
+  category: business
+  url: https://www.theguardian.com/uk/business/rss
+
+- id: guardian-tech
+  name: The Guardian Technology
+  category: tech
+  url: https://www.theguardian.com/uk/technology/rss
+
+- id: guardian-science
+  name: The Guardian Science
+  category: science
+  url: https://www.theguardian.com/science/rss
+
+- id: npr-world
+  name: NPR World
+  category: general
+  url: https://feeds.npr.org/1004/rss.xml
+
+- id: npr-business
+  name: NPR Business
+  category: business
+  url: https://feeds.npr.org/1006/rss.xml
+
+- id: npr-science
+  name: NPR Science
+  category: science
+  url: https://feeds.npr.org/1007/rss.xml
+
+- id: npr-tech
+  name: NPR Technology
+  category: tech
+  url: https://feeds.npr.org/1019/rss.xml
+
+- id: cnbc-world
+  name: CNBC World
+  category: general
+  url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362
+
+- id: cnbc-tech
+  name: CNBC Tech
+  category: tech
+  url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910
+
+- id: wsj-world
+  name: The Wall Street Journal World
+  category: general
+  url: https://feeds.content.dowjones.io/public/rss/RSSWorldNews
+
+- id: wsj-markets
+  name: The Wall Street Journal Markets
+  category: business
+  url: https://feeds.content.dowjones.io/public/rss/RSSMarketsMain
+
+- id: wsj-tech
+  name: The Wall Street Journal Tech
+  category: tech
+  url: https://feeds.content.dowjones.io/public/rss/RSSWSJD
+
+- id: abc-australia
+  name: ABC News Australia
+  category: general
+  url: https://www.abc.net.au/news/feed/2942460/rss.xml
+
+- id: france24
+  name: France 24
+  category: general
+  url: https://www.france24.com/en/rss
