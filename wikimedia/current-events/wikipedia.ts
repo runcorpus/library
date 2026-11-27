@@ -425,15 +425,13 @@ export function toDocument(item: CurrentEventItem): IngestDocument {
     wikipedia_path: item.wikipediaPath,
   };
 
-  const sections: string[] = [item.summary];
-  if (item.topics.length) sections.push(item.topics.join(", "));
-  sections.push(item.category);
-  if (item.sources.length) sections.push(item.sources.join(", "));
-  sections.push("Wikipedia Current Events");
+  // The summary and structured descriptors are already indexed from meta.
+  // Preserve the complete source summary when its retained description is truncated.
+  const fullTruncatedSummary = candidateDescription !== item.summary.trim() ? item.summary : "";
 
   return {
     url: item.url,
     meta,
-    body: { media_type: "text/plain", data: sections.join("\n") },
+    ...(fullTruncatedSummary && { body: { media_type: "text/plain", data: fullTruncatedSummary } }),
   };
 }

@@ -13,6 +13,10 @@ local `corpusd` daemon.
 - Use a stable canonical `url` as document identity, a lean allowlisted
   `meta` object, a transient `body` for indexing, and clean discovery
   `labels` (`name`, `description`, and optional `region` / `language`).
+- Corpus V0 indexes all metadata values recursively, including values in nested
+  objects and arrays, numbers, and booleans. Keys and `null` are ignored.
+  Do not copy metadata into `body` solely to make it searchable; use the body
+  for independent source text, and omit it when no such text remains.
 - Publish a `latest` tag (directly or as an alias) so default `corpus add`
   and `_/index` discovery work unambiguously.
 - Keep `README.md` factual and concise: explain coverage, search usage, and

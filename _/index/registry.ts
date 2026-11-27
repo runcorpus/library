@@ -92,9 +92,7 @@ export async function loadCatalog(): Promise<IngestDocument[]> {
         ...(region && { region }),
         ...(language && { language }),
       },
-      body: readme.trim()
-        ? { media_type: "text/markdown", data: readme }
-        : { media_type: "text/plain", data: [id, description].filter(Boolean).join("\n") },
+      ...(readme.trim() && { body: { media_type: "text/markdown", data: readme } }),
     });
   }
   if (!documents.length) throw new Error("The Library catalog contains no routing targets");

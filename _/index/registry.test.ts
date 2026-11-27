@@ -42,6 +42,7 @@ test("catalog results include region and language from the selected manifest", a
       description: "Older description",
       corpus: "example/older",
     });
+    expect(older?.body).toBeUndefined();
   } finally {
     fakeFetch.mockRestore();
   }

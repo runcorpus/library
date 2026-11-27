@@ -25,9 +25,9 @@ Illustrative shape:
 `url` is the stable document identity; `meta.corpus` is the reference used to add
 the collection. `region` and `language` are omitted when absent or empty.
 
-The body contains the published README. If missing or empty, it uses
-`text/plain` with `<org>/<name>` and the description on separate lines.
-Title and body are indexed; metadata is retained for search results.
+The body contains the published README when it has content; otherwise it is
+omitted. The identifier and description remain in metadata and are indexed
+there, so the importer does not synthesize a duplicate body.
 
 ## Source / Dataset
 

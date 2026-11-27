@@ -136,8 +136,12 @@ describe("wikimedia/current-events document and windowing", () => {
     expect(String(doc.meta.description).length).toBeLessThanOrEqual(500);
     expect(String(doc.meta.description).endsWith("…")).toBe(true);
     expect(doc.body?.media_type).toBe("text/plain");
+    expect(doc.body?.data).toBeTruthy();
     expect(doc.body?.data).toContain(longSummary);
-    expect(doc.body?.data).toContain("Wikipedia Current Events");
+    expect(doc.body?.data).not.toContain("Wikipedia Current Events");
+    const titleMatchesDescription = toDocument(makeItem({ summary: longSummary, title: String(doc.meta.description) }));
+    expect(titleMatchesDescription.meta.description).toBeUndefined();
+    expect(titleMatchesDescription.body?.data).toBe(longSummary);
 
     const shortTopLevel = toDocument(
       makeItem({
@@ -157,6 +161,7 @@ describe("wikimedia/current-events document and windowing", () => {
     );
     expect(shortWithTopic.meta.title).toBe("2026 Iranian strikes on Kuwait");
     expect(shortWithTopic.meta.description).toBe("Two technicians are killed in Kuwait.");
+    expect(shortWithTopic.body).toBeUndefined();
   });
 
   test("windowLabels and partitionWindowItems build disjoint narrowest-first slices", () => {

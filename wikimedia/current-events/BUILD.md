@@ -20,10 +20,7 @@ parameters, fragments, and trailing slashes stripped). Illustrative shape:
     "sources": ["Reuters"],
     "wikipedia_path": "/wiki/Portal:Current_events/2026_November_26"
   },
-  "body": {
-    "media_type": "text/plain",
-    "data": "Thirty people are killed and homes are burned by gunmen in Niger State, Nigeria.\nHerder–farmer conflicts in Nigeria\nArmed conflicts and attacks\nReuters\nWikipedia Current Events"
-  }
+  "body": null
 }
 ```
 
@@ -31,8 +28,10 @@ parameters, fragments, and trailing slashes stripped). Illustrative shape:
 topic when available (falling back to the lead sentence for top-level bullets).
 `description` is truncated to at most 500 characters on a word boundary and
 omitted when identical to `title`; `updated_at`, `topics`, and `sources` are
-omitted when empty. `body` uses `text/plain` combining the cleaned summary,
-topic hierarchy, category, cited source names, and `"Wikipedia Current Events"`.
+omitted when empty. The cleaned summary and its topic, category, and source
+descriptors are indexed from metadata. When the summary description is
+truncated, the body preserves the complete original summary; otherwise the body
+is omitted because the source text is already represented in metadata.
 
 ## Source / Dataset
 

@@ -110,14 +110,9 @@ describe("feeds mapping", () => {
       "title",
     ]);
     expect(doc.body?.media_type).toBe("text/plain");
-    expect(doc.body?.data).toBe(
-      [
-        "Lead paragraph. Full article body continues here.",
-        "Jane Doe",
-        "Economy, Markets",
-        "The New York Times, Associated Press",
-      ].join("\n"),
-    );
+    expect(doc.body?.data).toBe("Lead paragraph. Full article body continues here.\nEconomy, Markets");
+    expect(doc.body?.data).not.toContain("Jane Doe");
+    expect(doc.body?.data).not.toContain("The New York Times");
 
     const longSummary = Array.from({ length: 100 }, (_, i) => `word${i}`).join(" ");
     const truncated = toDocument(makeItem({ summary: longSummary, content: "" }));
@@ -126,6 +121,7 @@ describe("feeds mapping", () => {
     expect(desc.endsWith("…")).toBe(true);
     expect(desc).not.toMatch(/\s…$/);
     expect(truncated.body?.data).toContain(longSummary);
+    expect(toDocument(makeItem({ summary: "A developing story…", content: "", tags: [] })).body).toBeUndefined();
 
     const fallbackDoc = toDocument(
       makeItem({
@@ -137,7 +133,7 @@ describe("feeds mapping", () => {
 
     const lobstersDoc = toDocument(makeItem({ summary: "Comments", content: "" }));
     expect(lobstersDoc.meta.description).toBeUndefined();
-    expect(lobstersDoc.body?.data).toBe("Jane Doe\nEconomy, Markets\nThe New York Times");
+    expect(lobstersDoc.body?.data).toBe("Economy, Markets");
 
     const hnDoc = toDocument(
       makeItem({
@@ -146,7 +142,7 @@ describe("feeds mapping", () => {
       }),
     );
     expect(hnDoc.meta.description).toBeUndefined();
-    expect(hnDoc.body?.data).toBe("Jane Doe\nEconomy, Markets\nThe New York Times");
+    expect(hnDoc.body?.data).toBe("Economy, Markets");
   });
 
   test("windowLabels keeps only allowlisted public corpus labels", () => {
@@ -252,9 +248,7 @@ describe("feeds mapping", () => {
       "source",
       "title",
     ]);
-    expect(doc.body?.data).toContain("Filled snippet.");
     expect(doc.body?.data).toContain("topic alpha & beta, topic gamma");
-    expect(doc.body?.data).toContain("Google Trends US, ESPN");
   });
 
   test("extractNewsSitemapItems handles standard and custom prefixes, filtering, and duplicate URLs", () => {

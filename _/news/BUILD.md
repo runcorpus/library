@@ -22,7 +22,7 @@ fragments stripped). Illustrative shape:
   },
   "body": {
     "media_type": "text/plain",
-    "data": "Lead summary or content\nCaption\nJane Doe\nEconomy, Markets\nAssociated Press"
+    "data": "Full article content\nCaption\nEconomy, Markets"
   }
 }
 ```
@@ -30,10 +30,12 @@ fragments stripped). Illustrative shape:
 `url` is the stable document identity. `description` falls back to content when
 summary is absent, filters out non-abstract link boilerplate, and is truncated to
 at most 500 characters on a word boundary when present; `description`, `date`,
-`updated_at`, `publisher`, and `authors` are omitted when absent. `body` uses
-`text/plain` combining non-redundant full summary/content, media caption,
-authors, tags, and source attribution without label boilerplate. Title and body
-are indexed; metadata is retained for search results.
+`updated_at`, `publisher`, and `authors` are omitted when absent. The transient
+`text/plain` body keeps full feed content, captions, and feed tags when they
+provide additional source text. If a description is truncated, the body keeps
+the complete original summary. Headline, description, authors, and source
+attribution are indexed from metadata. The body is omitted when no additional
+source text remains.
 
 ## Source / Dataset
 

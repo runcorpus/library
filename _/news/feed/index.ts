@@ -545,22 +545,21 @@ export function toDocument(item: FeedItem): IngestDocument {
   };
 
   const sections: string[] = [];
-  const primaryText = content && (!summary || content.includes(summary))
-    ? content
-    : summary;
-  if (primaryText) sections.push(primaryText);
-  if (content && content !== primaryText) sections.push(content);
+  // Preserve the original summary when its retained metadata description was
+  // truncated. Other body sections are independent source content.
+  if (description !== rawDescription) {
+    sections.push(rawDescription);
+  }
+  if (content && content !== description && content !== rawDescription) sections.push(content);
   if (item.caption && !sections.some((section) => section.includes(item.caption))) {
     sections.push(item.caption);
   }
-  if (item.authors.length) sections.push(item.authors.join(", "));
   if (item.tags.length) sections.push(item.tags.join(", "));
-  sections.push(item.publisher ? `${item.source}, ${item.publisher}` : item.source);
 
   return {
     url: item.url,
     meta,
-    body: { media_type: "text/plain", data: sections.join("\n") },
+    ...(sections.length > 0 && { body: { media_type: "text/plain", data: sections.join("\n") } }),
   };
 }
 
