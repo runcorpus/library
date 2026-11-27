@@ -1,8 +1,8 @@
 {
-  "etag": "\"dn5rsb1yd33w-cmp-zstd\"",
-  "lastModified": "Fri, 27 Nov 2026 06:13:02 GMT",
-  "lastPollAt": "2026-11-27T06:13:38.354Z",
-  "lastOkAt": "2026-11-27T06:13:38.354Z",
+  "etag": "\"dn5vv3av3arc-d2w-zstd\"",
+  "lastModified": "Fri, 27 Nov 2026 09:24:44 GMT",
+  "lastPollAt": "2026-11-27T09:24:59.241Z",
+  "lastOkAt": "2026-11-27T09:24:59.241Z",
   "consecutiveFailures": 0,
   "backoffUntil": null,
   "lastError": null
