@@ -1,9 +1,9 @@
 {
   "etag": null,
   "lastModified": null,
-  "lastPollAt": "2026-11-27T10:14:15.613Z",
-  "lastOkAt": null,
-  "consecutiveFailures": 1,
-  "backoffUntil": "2026-11-27T10:29:15.613Z",
-  "lastError": "HTTP 403 Forbidden"
+  "lastPollAt": "2026-11-27T11:11:50.908Z",
+  "lastOkAt": "2026-11-27T11:11:50.908Z",
+  "consecutiveFailures": 0,
+  "backoffUntil": null,
+  "lastError": null
 }
