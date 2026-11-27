@@ -586,7 +586,7 @@ export async function fetchFeed(source: FeedSource, options: FetchFeedOptions = 
   const started = performance.now();
   const seenAt = (options.now ?? new Date()).toISOString();
   const headers: Record<string, string> = {
-    "user-agent": "CorpusNews/0.1 (+https://runcorpus.com/library/_/news)",
+    "user-agent": "Corpus/0.1 (+https://runcorpus.com/library/_/news)",
     accept: "application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
   };
   if (options.etag) headers["if-none-match"] = options.etag;
