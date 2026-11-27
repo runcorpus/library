@@ -4,32 +4,22 @@ on:
   schedule:
     - cron: '0 */4 * * *'
   workflow_dispatch:
-    inputs:
-      directory:
-        description: Corpus directory
-        type: string
-        required: true
-        default: _/index
 
 permissions:
   contents: read
   id-token: write
 
+concurrency:
+  group: publish-index
+  cancel-in-progress: false
+
 jobs:
   publish:
-    name: Publish ${{ matrix.directory }}
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        directory: ${{ fromJSON(inputs.directory && format('[{0}]', toJSON(inputs.directory)) || '["_/index"]') }}
-    concurrency:
-      group: publish-${{ matrix.directory }}
-      cancel-in-progress: false
     defaults:
       run:
-        working-directory: ${{ matrix.directory }}
+        working-directory: _/index
         shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
