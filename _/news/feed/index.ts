@@ -170,10 +170,33 @@ const NAMED_ENTITIES: Record<string, string> = {
   hellip: "…",
 };
 
+const SHOPPING_PATH_PATTERN =
+  /^\/(?:cnn-underscored|select\/shopping|nbc-select|wirecutter|story\/shopping|shopping\/deals|vetted|forbes-vetted)(?:\/|$)|\/shopping\/deals(?:\/|$)/i;
+
+export function isShoppingSitemapUrl(url: string): boolean {
+  try {
+    return SHOPPING_PATH_PATTERN.test(new URL(url).pathname);
+  } catch {
+    return false;
+  }
+}
+
 export function canonicalizeUrl(raw: string): string | null {
   try {
     const parsed = new URL(raw.trim());
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    const host = parsed.hostname.toLowerCase();
+    if (
+      (host === "www.bbc.co.uk" || host === "bbc.co.uk" || host === "bbc.com") &&
+      (parsed.pathname.startsWith("/news") || parsed.pathname.startsWith("/sport"))
+    ) {
+      parsed.hostname = "www.bbc.com";
+    } else if (host === "abcnews.go.com") {
+      parsed.hostname = "abcnews.com";
+    }
+    if (parsed.pathname.length > 1) {
+      parsed.pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+    }
     parsed.hash = "";
     for (const key of [...parsed.searchParams.keys()]) {
       const lower = key.toLowerCase();
@@ -352,7 +375,7 @@ export function extractNewsSitemapItems(source: FeedSource, xml: string, seenAt:
     const urlXml = urlMatch[1]!;
     const rawUrl = unwrapXmlText(readXmlTag(urlXml, "loc"));
     const url = rawUrl ? canonicalizeUrl(rawUrl) : null;
-    if (!url) continue;
+    if (!url || isShoppingSitemapUrl(url)) continue;
 
     const newsBlock = urlXml.match(
       /<(?:[A-Za-z0-9_-]+:)?news(?:\s[^>]*)?>([\s\S]*?)<\/(?:[A-Za-z0-9_-]+:)?news>/,

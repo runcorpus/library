@@ -77,12 +77,18 @@ describe("feeds mapping", () => {
     ).toThrow("exact keys");
   });
 
-  test("canonicalizeUrl strips tracking parameters and fragments", () => {
+  test("canonicalizeUrl strips tracking parameters, trailing slashes, and known publisher host aliases", () => {
     expect(
       canonicalizeUrl(
         "https://apnews.com/article/test?utm_source=flipboard&utm_content=Top&id=42#top",
       ),
     ).toBe("https://apnews.com/article/test?id=42");
+    expect(canonicalizeUrl("https://www.bbc.co.uk/news/world-12345/")).toBe(
+      "https://www.bbc.com/news/world-12345",
+    );
+    expect(canonicalizeUrl("https://abcnews.go.com/Politics/story/")).toBe(
+      "https://abcnews.com/Politics/story",
+    );
   });
 
   test("toDocument keeps allowlisted meta and avoids duplicating summary inside content", () => {
@@ -297,6 +303,28 @@ describe("feeds mapping", () => {
       <n:title>Nota en español</n:title>
     </n:news>
   </url>
+  <url>
+    <loc>https://www.cnn.com/cnn-underscored/deals/black-friday</loc>
+    <n:news>
+      <n:publication>
+        <n:name>CNN</n:name>
+        <n:language>en</n:language>
+      </n:publication>
+      <n:publication_date>2026-11-27T08:00:00Z</n:publication_date>
+      <n:title>Best Black Friday Deals</n:title>
+    </n:news>
+  </url>
+  <url>
+    <loc>https://www.usatoday.com/story/shopping/deals/2026/11/27/sale/123/</loc>
+    <n:news>
+      <n:publication>
+        <n:name>USA Today</n:name>
+        <n:language>en</n:language>
+      </n:publication>
+      <n:publication_date>2026-11-27T08:00:00Z</n:publication_date>
+      <n:title>Top Holiday Sales</n:title>
+    </n:news>
+  </url>
 </urlset>`;
 
     expect(isNewsSitemap(sitemapXml)).toBe(true);
@@ -500,6 +528,39 @@ describe("per-feed JSONL store", () => {
         makeItem({ summary: "Real abstract.", updatedAt: "2026-11-24T13:00:00.000Z" }),
       );
       expect(merged.summary).toBe("Real abstract.");
+
+      await upsertFeedItems(dir, "bbc-news", [
+        makeItem({
+          feedId: "bbc-news",
+          url: "https://www.bbc.co.uk/news/articles/c123/",
+          source: "BBC News",
+          summary: "BBC RSS summary.",
+          tags: ["World"],
+          publishedAt: "2026-11-27T08:00:00.000Z",
+          firstSeenAt: "2026-11-27T08:05:00.000Z",
+        }),
+      ]);
+      await upsertFeedItems(dir, "bbc-sitemap", [
+        makeItem({
+          feedId: "bbc-sitemap",
+          url: "https://www.bbc.com/news/articles/c123",
+          source: "BBC News",
+          summary: "",
+          tags: ["UK"],
+          publishedAt: "2026-11-27T08:00:00.000Z",
+          updatedAt: "2026-11-27T09:00:00.000Z",
+          firstSeenAt: "2026-11-27T09:05:00.000Z",
+        }),
+      ]);
+      const bbcMerged = (await readWindow(dir, 24, now)).filter((item) =>
+        item.url.includes("articles/c123"),
+      );
+      expect(bbcMerged).toHaveLength(1);
+      expect(bbcMerged[0]).toMatchObject({
+        url: "https://www.bbc.com/news/articles/c123",
+        summary: "BBC RSS summary.",
+        tags: ["UK", "World"],
+      });
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

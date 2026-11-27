@@ -1,6 +1,14 @@
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { FeedHttpError, fetchFeed, loadFeeds, usableSummary, type FeedItem, type FeedSource } from "./index";
+import {
+  FeedHttpError,
+  canonicalizeUrl,
+  fetchFeed,
+  loadFeeds,
+  usableSummary,
+  type FeedItem,
+  type FeedSource,
+} from "./index";
 
 export interface FeedCursor {
   etag: string | null;
@@ -249,9 +257,11 @@ export async function readWindow(
   for (const feedId of feedIds) {
     for (const day of days) {
       const path = join(storeDir, feedId, `${day}.jsonl`);
-      for (const item of await readJsonl(path)) {
-        const tsMs = Date.parse(itemTimestamp(item));
+      for (const rawItem of await readJsonl(path)) {
+        const tsMs = Date.parse(itemTimestamp(rawItem));
         if (!Number.isFinite(tsMs) || tsMs < cutoffMs) continue;
+        const url = canonicalizeUrl(rawItem.url) ?? rawItem.url;
+        const item = url === rawItem.url ? rawItem : { ...rawItem, url };
         const prior = deduped.get(item.url);
         if (!prior) {
           deduped.set(item.url, item);

@@ -872,3 +872,206 @@
   name: France 24
   category: general
   url: https://www.france24.com/en/rss
+
+# Expanded News Sitemaps
+- id: the-hill-sitemap
+  name: The Hill
+  category: general
+  url: https://thehill.com/news-sitemap.xml
+
+- id: nypost-sitemap
+  name: New York Post
+  category: general
+  url: https://nypost.com/news-sitemap.xml
+
+- id: bostonglobe-sitemap
+  name: The Boston Globe
+  category: local
+  url: https://www.bostonglobe.com/arc/outboundfeeds/news-sitemap/?outputType=xml
+
+- id: aljazeera-sitemap
+  name: Al Jazeera
+  category: general
+  url: https://www.aljazeera.com/news-sitemap.xml
+
+- id: independent-sitemap
+  name: The Independent
+  category: general
+  url: https://www.independent.co.uk/sitemaps/googlenews
+
+- id: telegraph-sitemap
+  name: The Telegraph
+  category: general
+  url: https://www.telegraph.co.uk/custom/daily-news/sitemap.xml
+
+- id: euronews-sitemap
+  name: Euronews
+  category: general
+  url: https://www.euronews.com/news.xml
+
+- id: france24-sitemap
+  name: France 24
+  category: general
+  url: https://www.france24.com/sitemaps/en/news.xml
+
+- id: straitstimes-sitemap
+  name: The Straits Times
+  category: general
+  url: https://www.straitstimes.com/googlenews.xml
+
+- id: cna-sitemap
+  name: CNA
+  category: general
+  url: https://www.channelnewsasia.com/api/v1/sitemap-news-feed?_format=xml
+
+- id: smh-sitemap
+  name: The Sydney Morning Herald
+  category: general
+  url: https://www.smh.com.au/sitemaps/news/brands/smh
+
+- id: globalnews-sitemap
+  name: Global News
+  category: general
+  url: https://globalnews.ca/news-sitemap.xml
+
+- id: thehindu-sitemap
+  name: The Hindu
+  category: general
+  url: https://www.thehindu.com/sitemap/googlenews/all/all.xml
+
+- id: indianexpress-sitemap
+  name: The Indian Express
+  category: general
+  url: https://indianexpress.com/news-sitemap.xml
+
+- id: timesofisrael-sitemap
+  name: The Times of Israel
+  category: general
+  url: https://www.timesofisrael.com/news-sitemap.xml
+
+- id: marketwatch-sitemap
+  name: MarketWatch
+  category: business
+  url: https://www.marketwatch.com/mw_news_sitemap.xml
+
+- id: businessinsider-sitemap
+  name: Business Insider
+  category: business
+  url: https://www.businessinsider.com/sitemap/google-news.xml
+
+- id: fortune-sitemap
+  name: Fortune
+  category: business
+  url: https://fortune.com/feed/googlenews/articles.xml
+
+- id: forbes-sitemap
+  name: Forbes
+  category: business
+  url: https://www.forbes.com/news_sitemap.xml
+
+- id: techcrunch-sitemap
+  name: TechCrunch
+  category: tech
+  url: https://techcrunch.com/news-sitemap.xml
+
+- id: theverge-sitemap
+  name: The Verge
+  category: tech
+  url: https://www.theverge.com/sitemaps/google_news
+
+- id: wired-sitemap
+  name: WIRED
+  category: tech
+  url: https://www.wired.com/feed/google-latest-news/sitemap-google-news
+
+- id: nature-sitemap
+  name: Nature
+  category: science
+  url: https://www.nature.com/latest-news/sitemap.xml
+
+- id: variety-sitemap
+  name: Variety
+  category: entertainment
+  url: https://variety.com/news-sitemap.xml
+
+- id: deadline-sitemap
+  name: Deadline
+  category: entertainment
+  url: https://deadline.com/news-sitemap.xml
+
+- id: people-sitemap
+  name: People
+  category: entertainment
+  url: https://people.com/google-news-sitemap.xml
+
+# Google Trends Additional English Geos
+- id: google-trends-ie
+  name: Google Trends Ireland
+  category: general
+  url: https://trends.google.com/trending/rss?geo=IE
+
+- id: google-trends-nz
+  name: Google Trends New Zealand
+  category: general
+  url: https://trends.google.com/trending/rss?geo=NZ
+
+- id: google-trends-in
+  name: Google Trends India
+  category: general
+  url: https://trends.google.com/trending/rss?geo=IN
+
+- id: google-trends-ph
+  name: Google Trends Philippines
+  category: general
+  url: https://trends.google.com/trending/rss?geo=PH
+
+- id: google-trends-za
+  name: Google Trends South Africa
+  category: general
+  url: https://trends.google.com/trending/rss?geo=ZA
+
+# Primary-Source, Wire, and Global RSS/Atom Feeds
+- id: un-news
+  name: UN News
+  category: general
+  url: https://news.un.org/feed/subscribe/en/news/all/rss.xml
+
+- id: reliefweb
+  name: ReliefWeb
+  category: general
+  url: https://reliefweb.int/updates/rss.xml
+
+- id: govuk-news
+  name: GOV.UK News
+  category: general
+  url: https://www.gov.uk/search/news-and-communications.atom
+
+- id: fda-press
+  name: FDA Press Releases
+  category: health
+  url: https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml
+
+- id: sciencedaily
+  name: ScienceDaily
+  category: science
+  url: https://www.sciencedaily.com/rss/all.xml
+
+- id: sky-news
+  name: Sky News
+  category: general
+  url: https://feeds.skynews.com/feeds/rss/world.xml
+
+- id: euronews-rss
+  name: Euronews
+  category: general
+  url: https://www.euronews.com/rss?format=mrss&level=theme&name=news
+
+- id: scmp-rss
+  name: South China Morning Post
+  category: general
+  url: https://www.scmp.com/rss/91/feed
+
+- id: prnewswire
+  name: PR Newswire
+  category: business
+  url: https://www.prnewswire.com/rss/news-releases-list.rss
