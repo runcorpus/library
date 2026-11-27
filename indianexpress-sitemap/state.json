@@ -1,9 +1,9 @@
 {
   "etag": null,
   "lastModified": null,
-  "lastPollAt": "2026-11-27T14:48:59.879Z",
+  "lastPollAt": "2026-11-27T16:44:31.467Z",
   "lastOkAt": "2026-11-27T14:48:59.879Z",
-  "consecutiveFailures": 0,
-  "backoffUntil": null,
-  "lastError": null
+  "consecutiveFailures": 1,
+  "backoffUntil": "2026-11-27T16:59:31.467Z",
+  "lastError": "The operation timed out."
 }
